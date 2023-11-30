@@ -13,6 +13,8 @@ class GUI:
         self.max_x = self.image.width
         self.max_y = self.image.height
 
+        self.numOfInnerRectGrid = 10
+
         self.canvas = tk.Canvas(root, width=self.max_x, height=self.max_y)
         self.canvas.pack()
 
@@ -41,6 +43,8 @@ class GUI:
             self.canvas.create_oval(x - 2, y - 2, x + 2, y + 2, fill="green")
             self.vanishing_point = [x, y]
             self.draw_vanishing_lines()
+            self.draw_innergrid(self.numOfInnerRectGrid)
+
 
             #DRAW VANISHING LINES
 
@@ -73,6 +77,16 @@ class GUI:
         self.canvas.create_line(self.inner_rect[0], self.inner_rect[3],edge_bl[0], edge_bl[1], fill="blue")
         self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], edge_tr[0], edge_tr[1], fill="blue")
         self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], edge_br[0], edge_br[1], fill="blue")
+
+    def draw_innergrid(self, numOfRectangleLength):
+            # Draw grid lines on the inner rectangle
+            for i in range(1, numOfRectangleLength):  # Adjust the number of grid lines as needed
+                x_grid = self.inner_rect[0] + i * (self.inner_rect[2] - self.inner_rect[0]) / numOfRectangleLength
+                self.canvas.create_line(x_grid, self.inner_rect[1], x_grid, self.inner_rect[3], fill="red")
+
+                y_grid = self.inner_rect[1] + i * (self.inner_rect[3] - self.inner_rect[1]) / numOfRectangleLength
+                self.canvas.create_line(self.inner_rect[0], y_grid, self.inner_rect[2], y_grid, fill="red")
+
         
 
 
