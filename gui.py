@@ -40,7 +40,7 @@ class GUI:
             self.inner_rect = [self.points[0][0], self.points[0][1], self.points[1][0], self.points[1][1]]
         if len(self.points) == 3:
             print("VANISHING POINT")
-            self.canvas.create_oval(x - 2, y - 2, x + 2, y + 2, fill="green")
+            self.canvas.create_oval(x - 2, y - 2, x + 5, y + 5, width = 0, fill="green")
             self.vanishing_point = [x, y]
             self.draw_vanishing_lines()
             self.draw_innergrid(self.numOfInnerRectGrid)
@@ -67,16 +67,16 @@ class GUI:
         slope_br_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[2])
 
         # Intersection points
-        edge_tl = (0, self.inner_rect[1] - slope_tl_vp * self.inner_rect[0])
-        edge_bl = (0, self.inner_rect[3] - slope_bl_vp * self.inner_rect[0])
-        edge_tr = (self.max_x, self.inner_rect[1] + slope_tr_vp * (self.max_x - self.inner_rect[2]))
-        edge_br = (self.max_x, self.inner_rect[3] + slope_br_vp * (self.max_x - self.inner_rect[2]))
+        self.edge_tl = (0, self.inner_rect[1] - slope_tl_vp * self.inner_rect[0])
+        self.edge_bl = (0, self.inner_rect[3] - slope_bl_vp * self.inner_rect[0])
+        self.edge_tr = (self.max_x, self.inner_rect[1] + slope_tr_vp * (self.max_x - self.inner_rect[2]))
+        self.edge_br = (self.max_x, self.inner_rect[3] + slope_br_vp * (self.max_x - self.inner_rect[2]))
 
         # inner rect points to edge points
-        self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], edge_tl[0], edge_tl[1], fill="blue")
-        self.canvas.create_line(self.inner_rect[0], self.inner_rect[3],edge_bl[0], edge_bl[1], fill="blue")
-        self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], edge_tr[0], edge_tr[1], fill="blue")
-        self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], edge_br[0], edge_br[1], fill="blue")
+        self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], self.edge_tl[0], self.edge_tl[1], fill="blue")
+        self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.edge_bl[0], self.edge_bl[1], fill="blue")
+        self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.edge_tr[0], self.edge_tr[1], fill="blue")
+        self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.edge_br[0], self.edge_br[1], fill="blue")
 
     def draw_innergrid(self, numOfRectangleLength):
             # Draw grid lines on the inner rectangle
@@ -87,6 +87,10 @@ class GUI:
                 y_grid = self.inner_rect[1] + i * (self.inner_rect[3] - self.inner_rect[1]) / numOfRectangleLength
                 self.canvas.create_line(self.inner_rect[0], y_grid, self.inner_rect[2], y_grid, fill="red")
 
+    def draw_sectiongrid(self, numofRectangleLengthSection):
+        #segment all parallel lines by numofRectangleLengthSection
+        #drawlines between each segmented piece!
+        pass
         
 
 
