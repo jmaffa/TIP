@@ -55,19 +55,19 @@ class GUI:
         #bot right to vanishing point
         self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
 
-        # Calculate slopes
+        # Slopes
         slope_tl_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[0])
         slope_bl_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[0])
         slope_tr_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[2])
         slope_br_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[2])
 
-        # Find intersection points
+        # Intersection points
         edge_tl = (0, self.inner_rect[1] - slope_tl_vp * self.inner_rect[0])
         edge_bl = (0, self.inner_rect[3] - slope_bl_vp * self.inner_rect[0])
         edge_tr = (self.max_x, self.inner_rect[1] + slope_tr_vp * (self.max_x - self.inner_rect[2]))
         edge_br = (self.max_x, self.inner_rect[3] + slope_br_vp * (self.max_x - self.inner_rect[2]))
 
-        # Draw lines from vanishing point to edge points
+        # Vanishing point to edge points
         self.canvas.create_line(self.vanishing_point[0], self.vanishing_point[1], edge_tl[0], edge_tl[1], fill="blue")
         self.canvas.create_line(self.vanishing_point[0], self.vanishing_point[1], edge_bl[0], edge_bl[1], fill="blue")
         self.canvas.create_line(self.vanishing_point[0], self.vanishing_point[1], edge_tr[0], edge_tr[1], fill="blue")
