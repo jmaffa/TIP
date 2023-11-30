@@ -46,14 +46,15 @@ class GUI:
 
         print(self.points)
     def draw_vanishing_lines(self):
-        # top left to vanishing point
-        self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1],  fill="blue")
-        # bot left to vanishing point
-        self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
-        #top right to vanishing point
-        self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
-        #bot right to vanishing point
-        self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
+
+        # # top left to vanishing point
+        # self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1],  fill="blue")
+        # # bot left to vanishing point
+        # self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
+        # #top right to vanishing point
+        # self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
+        # #bot right to vanishing point
+        # self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
 
         # Slopes
         slope_tl_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[0])
@@ -67,11 +68,11 @@ class GUI:
         edge_tr = (self.max_x, self.inner_rect[1] + slope_tr_vp * (self.max_x - self.inner_rect[2]))
         edge_br = (self.max_x, self.inner_rect[3] + slope_br_vp * (self.max_x - self.inner_rect[2]))
 
-        # Vanishing point to edge points
-        self.canvas.create_line(self.vanishing_point[0], self.vanishing_point[1], edge_tl[0], edge_tl[1], fill="blue")
-        self.canvas.create_line(self.vanishing_point[0], self.vanishing_point[1], edge_bl[0], edge_bl[1], fill="blue")
-        self.canvas.create_line(self.vanishing_point[0], self.vanishing_point[1], edge_tr[0], edge_tr[1], fill="blue")
-        self.canvas.create_line(self.vanishing_point[0], self.vanishing_point[1], edge_br[0], edge_br[1], fill="blue")
+        # inner rect points to edge points
+        self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], edge_tl[0], edge_tl[1], fill="blue")
+        self.canvas.create_line(self.inner_rect[0], self.inner_rect[3],edge_bl[0], edge_bl[1], fill="blue")
+        self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], edge_tr[0], edge_tr[1], fill="blue")
+        self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], edge_br[0], edge_br[1], fill="blue")
         
 
 
