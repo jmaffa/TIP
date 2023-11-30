@@ -17,9 +17,6 @@ if __name__ == '__main__':
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
     foreground = cv2.cvtColor(foreground, cv2.COLOR_BGR2RGB)
-
-
-
     
     plt.imshow(img)
     plt.show()
