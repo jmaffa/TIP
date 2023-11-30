@@ -46,13 +46,13 @@ class GUI:
 
         print(self.points)
     def draw_vanishing_lines(self):
-        # top left
+        # top left to vanishing point
         self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1],  fill="blue")
-        # bot left
+        # bot left to vanishing point
         self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
-        #top right
+        #top right to vanishing point
         self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
-        #bot right
+        #bot right to vanishing point
         self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
 
         # TO FIND THE EDGE POINTS, FIND THE SLOPE OF EACH OF THE LINES THEN FIND WHERE IT INTERSECTS THE MAX VALUES AND STUFF
