@@ -42,23 +42,51 @@ class GUI:
             print("VANISHING POINT")
             self.canvas.create_oval(x - 2, y - 2, x + 5, y + 5, width = 0, fill="green")
             self.vanishing_point = [x, y]
-            self.draw_vanishing_lines()
+            self.draw_vanishing_lines(self.numOfInnerRectGrid)
             self.draw_innergrid(self.numOfInnerRectGrid)
+            # self.draw_sectiongrid(self.numOfInnerRectGrid)
 
 
             #DRAW VANISHING LINES
 
         print(self.points)
-    def draw_vanishing_lines(self):
+    def draw_vanishing_lines(self, numOfInnerRectGrid):
+        topEdge_step = (self.inner_rect[2] - self.inner_rect[0])/ numOfInnerRectGrid
+        sideEdge_step = (self.inner_rect[3] - self.inner_rect[1])/ numOfInnerRectGrid
 
-        # # top left to vanishing point
-        # self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1],  fill="blue")
-        # # bot left to vanishing point
-        # self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
-        # #top right to vanishing point
-        # self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
-        # #bot right to vanishing point
-        # self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
+        for i in range(numOfInnerRectGrid):
+            self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1], fill="orange")
+            self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="orange")
+                    
+            self.canvas.create_line(self.inner_rect[0], self.inner_rect[1]+(sideEdge_step*(i+1)), self.vanishing_point[0], self.vanishing_point[1],  fill="orange")
+            self.canvas.create_line(self.inner_rect[2], self.inner_rect[1]+(sideEdge_step*(i+1)), self.vanishing_point[0], self.vanishing_point[1], fill="orange")
+
+            # #SLOPES
+            # slope_tl_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[0]+(topEdge_step*(i+1)))
+
+            # # slope_bl_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[0]+(topEdge_step*(i+1)))
+
+            # # slope_tr_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[2])
+
+            # # slope_br_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[2])
+
+            # # Intersection points
+            # self.edge_tl = (0, self.inner_rect[1] - slope_tl_vp * self.inner_rect[0]+(topEdge_step*(i+1)))
+            # # self.edge_bl = (0, self.inner_rect[3] - slope_bl_vp * self.inner_rect[0])
+
+            # # # inner rect points to edge points
+            # self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[1], self.edge_tl[0], self.edge_tl[1], fill="orange")
+            # # self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.edge_bl[0], self.edge_bl[1], fill="blue")
+            
+
+        # top left to vanishing point
+        self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1],  fill="blue")
+        # bot left to vanishing point
+        self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
+        #top right to vanishing point
+        self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
+        #bot right to vanishing point
+        self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="blue")
 
         # Slopes
         slope_tl_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[0])
@@ -78,6 +106,7 @@ class GUI:
         self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.edge_tr[0], self.edge_tr[1], fill="blue")
         self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.edge_br[0], self.edge_br[1], fill="blue")
 
+
     def draw_innergrid(self, numOfRectangleLength):
             # Draw grid lines on the inner rectangle
             for i in range(1, numOfRectangleLength):  # Adjust the number of grid lines as needed
@@ -87,13 +116,10 @@ class GUI:
                 y_grid = self.inner_rect[1] + i * (self.inner_rect[3] - self.inner_rect[1]) / numOfRectangleLength
                 self.canvas.create_line(self.inner_rect[0], y_grid, self.inner_rect[2], y_grid, fill="red")
 
-    def draw_sectiongrid(self, numofRectangleLengthSection):
-        #segment all parallel lines by numofRectangleLengthSection
-        #drawlines between each segmented piece!
-        pass
-        
-
-
+    # def draw_sectiongrid(self, numofRectangleLengthSection):
+    #     # Draw grid between lines outside of the inner rectangle
+    #     s
+                
 # VANISHING POINT MODE
 # INNER RECTANGLE MODE
 # OUTER RECTANGLE MODE
