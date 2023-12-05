@@ -56,28 +56,38 @@ class GUI:
 
         for i in range(numOfInnerRectGrid):
             self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1], fill="orange")
-            self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="orange")
+            # self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[3], self.vanishing_point[0], self.vanishing_point[1], fill="orange")
                     
             self.canvas.create_line(self.inner_rect[0], self.inner_rect[1]+(sideEdge_step*(i+1)), self.vanishing_point[0], self.vanishing_point[1],  fill="orange")
-            self.canvas.create_line(self.inner_rect[2], self.inner_rect[1]+(sideEdge_step*(i+1)), self.vanishing_point[0], self.vanishing_point[1], fill="orange")
+            # self.canvas.create_line(self.inner_rect[2], self.inner_rect[1]+(sideEdge_step*(i+1)), self.vanishing_point[0], self.vanishing_point[1], fill="orange")
 
             # #SLOPES
-            # slope_tl_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[0]+(topEdge_step*(i+1)))
+            slope_tl_vp_denominator = (self.vanishing_point[0] - (self.inner_rect[0]+(topEdge_step*(i+1))))
+            if slope_tl_vp_denominator == 0:
+                print("slope is inf")
+                self.edge_tl = (0, self.inner_rect[0]+(topEdge_step*(i+1)))
+            else:
+                print("no inf slope")
+                slope_tl_vp = (self.vanishing_point[1] - self.inner_rect[1]) / slope_tl_vp_denominator
+                print(slope_tl_vp)
+                # slope_bl_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - (self.inner_rect[0]+(topEdge_step*(i+1))))
 
-            # # slope_bl_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[0]+(topEdge_step*(i+1)))
+                if slope_tl_vp < 0:
+                    print("LESS THAN 0")
+                    self.edge_tl = (0, self.inner_rect[1] - (-slope_tl_vp * self.inner_rect[0]+(topEdge_step*(i+1))))
+                else:
+                    self.edge_tl = (0, (self.inner_rect[1] - (slope_tl_vp * self.inner_rect[0]+(topEdge_step*(i+1)))))
 
-            # # slope_tr_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[2])
-
-            # # slope_br_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[2])
 
             # # Intersection points
-            # self.edge_tl = (0, self.inner_rect[1] - slope_tl_vp * self.inner_rect[0]+(topEdge_step*(i+1)))
-            # # self.edge_bl = (0, self.inner_rect[3] - slope_bl_vp * self.inner_rect[0])
+            self.edge_tl = (0, self.inner_rect[1] - (slope_tl_vp * self.inner_rect[0]+(topEdge_step*(i+1))))
+            # self.edge_bl = (0, self.inner_rect[3] - abs(slope_bl_vp) * self.inner_rect[0])
 
-            # # # inner rect points to edge points
-            # self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[1], self.edge_tl[0], self.edge_tl[1], fill="orange")
-            # # self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.edge_bl[0], self.edge_bl[1], fill="blue")
-            
+            # # inner rect points to edge points
+            self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[1], self.edge_tl[0], self.edge_tl[1], fill="orange")
+            # self.canvas.create_line(self.inner_rect[0]+(topEdge_step*(i+1)), self.inner_rect[3], self.edge_bl[0], self.edge_bl[1], fill="orange")
+
+    
 
         # top left to vanishing point
         self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], self.vanishing_point[0], self.vanishing_point[1],  fill="blue")
@@ -90,22 +100,27 @@ class GUI:
 
         # Slopes
         slope_tl_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[0])
-        slope_bl_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[0])
-        slope_tr_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[2])
-        slope_br_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[2])
+        # slope_bl_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[0])
+        # slope_tr_vp = (self.vanishing_point[1] - self.inner_rect[1]) / (self.vanishing_point[0] - self.inner_rect[2])
+        # slope_br_vp = (self.vanishing_point[1] - self.inner_rect[3]) / (self.vanishing_point[0] - self.inner_rect[2])
 
         # Intersection points
         self.edge_tl = (0, self.inner_rect[1] - slope_tl_vp * self.inner_rect[0])
-        self.edge_bl = (0, self.inner_rect[3] - slope_bl_vp * self.inner_rect[0])
-        self.edge_tr = (self.max_x, self.inner_rect[1] + slope_tr_vp * (self.max_x - self.inner_rect[2]))
-        self.edge_br = (self.max_x, self.inner_rect[3] + slope_br_vp * (self.max_x - self.inner_rect[2]))
+        # self.edge_bl = (0, self.inner_rect[3] - slope_bl_vp * self.inner_rect[0])
+        # self.edge_tr = (self.max_x, self.inner_rect[1] + slope_tr_vp * (self.max_x - self.inner_rect[2]))
+        # self.edge_br = (self.max_x, self.inner_rect[3] + slope_br_vp * (self.max_x - self.inner_rect[2]))
 
         # inner rect points to edge points
         self.canvas.create_line(self.inner_rect[0], self.inner_rect[1], self.edge_tl[0], self.edge_tl[1], fill="blue")
-        self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.edge_bl[0], self.edge_bl[1], fill="blue")
-        self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.edge_tr[0], self.edge_tr[1], fill="blue")
-        self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.edge_br[0], self.edge_br[1], fill="blue")
+        # self.canvas.create_line(self.inner_rect[0], self.inner_rect[3], self.edge_bl[0], self.edge_bl[1], fill="blue")
+        # self.canvas.create_line(self.inner_rect[2], self.inner_rect[1], self.edge_tr[0], self.edge_tr[1], fill="blue")
+        # self.canvas.create_line(self.inner_rect[2], self.inner_rect[3], self.edge_br[0], self.edge_br[1], fill="blue")
 
+    def intersection_with_y_axis(self, slope, b):
+        # Solve for x
+        x_intersection = -b / slope
+        
+        return x_intersection
 
     def draw_innergrid(self, numOfRectangleLength):
             # Draw grid lines on the inner rectangle
