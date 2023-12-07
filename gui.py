@@ -22,8 +22,9 @@ class GUI:
 
         self.points = []  # Store the points of the spidery mesh
         
-        
         self.inner_rect = [] # [x1, y1, x2, y2]
+        self.outer_rect = [(0, 0), (self.max_x, 0), (self.max_x, self.max_y), (0, self.max_y)]
+        self.cube_vertices = []
         self.vanishing_point = [] # [x, y]
         self.canvas.bind("<Button-1>", self.on_canvas_click)
 
@@ -38,6 +39,7 @@ class GUI:
             print("CREATING RECTANGLE")
             self.canvas.create_rectangle(self.points[0][0], self.points[0][1], self.points[1][0], self.points[1][1], outline="red")
             self.inner_rect = [self.points[0][0], self.points[0][1], self.points[1][0], self.points[1][1]]
+            self.create_cube()
         if len(self.points) == 3:
             print("VANISHING POINT")
             self.canvas.create_oval(x - 2, y - 2, x + 5, y + 5, width = 0, fill="green")
@@ -49,7 +51,9 @@ class GUI:
 
             #DRAW VANISHING LINES
 
+        
         print(self.points)
+        
     def draw_vanishing_lines(self, numOfInnerRectGrid):
         topEdge_step = (self.inner_rect[2] - self.inner_rect[0])/ numOfInnerRectGrid
         sideEdge_step = (self.inner_rect[3] - self.inner_rect[1])/ numOfInnerRectGrid
@@ -131,6 +135,55 @@ class GUI:
                 y_grid = self.inner_rect[1] + i * (self.inner_rect[3] - self.inner_rect[1]) / numOfRectangleLength
                 self.canvas.create_line(self.inner_rect[0], y_grid, self.inner_rect[2], y_grid, fill="red")
 
+    def calculate_cube_vertices(self):
+        # Extract points from the inner and outer rectangles
+        # [(0, 0), (self.max_x, 0), (self.max_x, self.max_y), (0, self.max_y)]
+        # [x1, y1, x2, y2]
+        outer_top_left, outer_top_right, outer_bottom_right, outer_bottom_left = self.outer_rect[0], self.outer_rect[1], self.outer_rect[2], self.outer_rect[3]
+        inner_rect_width = self.inner_rect[2] - self.inner_rect[0]
+        inner_rect_height = self.inner_rect[3] - self.inner_rect[1]
+        inner_top_left, inner_top_right, inner_bottom_left, inner_bottom_right = (self.inner_rect[0], self.inner_rect[1]), \
+                                                                    ((self.inner_rect[0] + inner_rect_width), self.inner_rect[1]),  \
+                                                                    (self.inner_rect[0], (self.inner_rect[1] + inner_rect_height)),  \
+                                                                    ((self.inner_rect[0] + inner_rect_width), (self.inner_rect[1] + inner_rect_height))
+            
+        # Calculate cube vertices
+        self.cube_vertices = [
+            outer_top_left,
+            outer_bottom_left,
+            outer_top_right,
+            outer_bottom_right,
+            inner_top_left,
+            inner_bottom_left,
+            inner_top_right,
+            inner_bottom_right
+        ]
+
+    def create_cube(self):
+
+        # Calculate cube vertices based on inner and outer rectangles
+        self.calculate_cube_vertices()
+
+        # Draw the cube
+        self.canvas.create_line(self.cube_vertices[0], self.cube_vertices[1], fill="green")
+        self.canvas.create_line(self.cube_vertices[0], self.cube_vertices[2], fill="green")
+        self.canvas.create_line(self.cube_vertices[2], self.cube_vertices[3], fill="green")
+        self.canvas.create_line(self.cube_vertices[1], self.cube_vertices[3], fill="green")
+
+        # self.canvas.create_line(self.cube_vertices[4], self.cube_vertices[5], fill="green")
+        # self.canvas.create_line(self.cube_vertices[5], self.cube_vertices[6], fill="green")
+        # self.canvas.create_line(self.cube_vertices[6], self.cube_vertices[7], fill="green")
+        # self.canvas.create_line(self.cube_vertices[7], self.cube_vertices[4], fill="green")
+
+        self.canvas.create_line(self.cube_vertices[0], self.cube_vertices[4], fill="green")
+        self.canvas.create_line(self.cube_vertices[1], self.cube_vertices[5], fill="green")
+        self.canvas.create_line(self.cube_vertices[2], self.cube_vertices[6], fill="green")
+        self.canvas.create_line(self.cube_vertices[3], self.cube_vertices[7], fill="green")
+
+        # List to store the 3D coordinates of the points
+        points_3d = []
+
+    
     # def draw_sectiongrid(self, numofRectangleLengthSection):
     #     # Draw grid between lines outside of the inner rectangle
     #     s
@@ -142,7 +195,7 @@ class GUI:
     #outer rectangle is always the corners of the photo
 
 
-#things to define
+# things to define
 # vanishing point
 # inner rectangle corners
 if __name__ == "__main__":

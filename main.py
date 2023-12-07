@@ -34,3 +34,4 @@ def set_vanishing_point():
     pass
 def set_foreground_billboards():
     pass
+
