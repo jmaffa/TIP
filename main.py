@@ -51,8 +51,8 @@ def project3Dto2D(img):
     # extrinsic but also they are needed for the cv2 function
     rotation = np.zeros((3, 1), np.float32) 
     # rotation = np.array([[0.2],[0],[0]])
-    translation = np.zeros((3, 1), np.float32) 
-    # translation = np.array([[0],[1.0],[0]])
+    # translation = np.zeros((3, 1), np.float32) 
+    translation = np.array([[0],[1.0],[0]])
 
 
 
@@ -72,7 +72,7 @@ def project3Dto2D(img):
     top_left_2d_x = int(top_left_2d[0][0][0])
     top_left_2d_y = int(top_left_2d[0][0][1])
     new_img[top_left_2d_y,top_left_2d_x, :] = img[570,650,:]
-    print(top_left_2d_y,top_left_2d_x)
+    # print(top_left_2d_y,top_left_2d_x)
 
     bot_right_2d_x = int(bot_right_2d[0][0][0])
     bot_right_2d_y = int(bot_right_2d[0][0][1])
@@ -91,15 +91,43 @@ def project3Dto2D(img):
     # x_pts = [0,top_left_2d_x, width-1, top_right_2d_x]
     # y_pts = [0,top_left_2d_y, 0,top_right_2d_y]
     plt.plot((0,top_left_2d_x),(0,top_left_2d_y), marker='o')
+    print(top_left_2d_x, top_left_2d_y)
     plt.plot((width-1,top_right_2d_x),(0,top_right_2d_y), marker='o')
+    print(top_right_2d_x, top_right_2d_y)
     plt.plot((0,bot_left_2d_x),(height-1,bot_left_2d_y), marker='o')
+    print(bot_right_2d_x, bot_right_2d_y)
     plt.plot((width-1,bot_right_2d_x),(height-1,bot_right_2d_y), marker='o')
+    print(bot_left_2d_x, bot_left_2d_y)
     # NOW SET THE TOP LEFT OF NEW TO BE TOP OF LEFT OF OLD AND ON AND ON
     # ONCE YOU HAVE 8 POINTS, TOP, BOTTOM, INNER, OUTER, LEFT, RIGHT
     # DRAW LINES FROM EACH OF THEM TO BUILD THE "edges" of the cube through Z
     # MAKE SURE THAT IT ROUGHLY LOOKS LIKE WHERE WE THINK THE BOX AND LINES TO BE
 
+    #A B C D E F G H
+    # old_pts = np.array([[0,0],[width-1,0],[width-1,height-1],[0,height-1],[625,353],[775,353],[775,533],[625,533]])
+
+    old_inner_rect = np.array([[625,353],[775,353],[775,533],[625,533]])
+    new_inner_rect = np.array([[top_left_2d_x,top_left_2d_y],[top_right_2d_x,top_right_2d_y],[bot_right_2d_x,bot_right_2d_y],[bot_left_2d_x,bot_left_2d_y]])
+    # are first four always going to be the same ????????????
+    # new_pts = np.array([[0,0],[width-1,0],[width-1,height-1],[0,height-1],[top_left_2d_x,top_left_2d_y],[top_right_2d_x,top_right_2d_y],[bot_right_2d_x,bot_right_2d_y],[bot_left_2d_x,bot_left_2d_y]])
+    # new_pts = 
     
+    M, _ = cv2.findHomography(old_inner_rect,new_inner_rect)
+
+    old_img_inner_rect = img[353:533, 625:775, :]
+
+    output = cv2.warpPerspective(old_img_inner_rect, M,(width,height))
+    
+    final_fill = np.zeros((height, width, 3))
+
+    final_fill[top_left_2d_y:bot_left_2d_y, top_left_2d_x:top_right_2d_x, :] = old_img_inner_rect
+    
+
+
+    plt.imshow(final_fill)
+    plt.show()
+
+
     # print(top_right_2d_x,top_right_2d_y)
     # x_2d = x_p / z_p
     # y_2d = y_p / z_p
@@ -110,9 +138,15 @@ def project3Dto2D(img):
     # new_img[]
     # new_img[int(y_2d[0]),int(x_2d[0]),:] = img[0,width-1,:]
     # plt.imshow(new_img)
-    plt.imshow(new_img)
-    plt.show()
+    # plt.imshow(new_img)
+    # plt.show()
+    
     # print(points_2d)
+
+
+    # point correspondances
+    # A = [[x1,y1],[x2,y2],...]
+    # B = [[x1',y1']...]
 
 
 
