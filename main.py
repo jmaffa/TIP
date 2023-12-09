@@ -90,6 +90,8 @@ def project3Dto2D(img):
 
     # x_pts = [0,top_left_2d_x, width-1, top_right_2d_x]
     # y_pts = [0,top_left_2d_y, 0,top_right_2d_y]
+
+    # MISNAMED X AND Y
     plt.plot((0,top_left_2d_x),(0,top_left_2d_y), marker='o')
     print(top_left_2d_x, top_left_2d_y)
     plt.plot((width-1,top_right_2d_x),(0,top_right_2d_y), marker='o')
@@ -194,35 +196,85 @@ def set_foreground_billboards():
 def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
       
     y,x=np.mgrid[0:h,0:w]
-    # plt.plot((0,inner_rect_pts[0][0]),(0,inner_rect_pts[0][1]), marker='o')
-    # plt.plot((img.shape[1]-1,inner_rect_pts[1][0]),(0,inner_rect_pts[1][1]), marker='o')
-    # plt.plot((img.shape[1]-1,inner_rect_pts[2][0]),(img.shape[0]-1,inner_rect_pts[2][1]), marker='o')
-    plt.plot((0,inner_rect_pts[3][0]),(img.shape[0]-1,inner_rect_pts[3][1]), marker='o')
+
+    tl_out = outer_rect_pts[0]
+    # print(tl_out)
+    tr_out = outer_rect_pts[1]
+    # print(tr_out)
+    br_out = outer_rect_pts[2]
+    # print(br_out)
+    bl_out = outer_rect_pts[3]
+    # print(bl_out)
+
+    tl_in = inner_rect_pts[0]
+    tr_in = inner_rect_pts[1]
+    br_in = inner_rect_pts[2]
+    bl_in = inner_rect_pts[3]
+
+    # TL LINE (0,625) (0,353)
+    # plt.plot((tl_out[1],tl_in[1]), (tl_out[0],tl_in[0]), marker='o')
+    # # TR LINE (1399,775) (0,353)
+    # plt.plot((tr_out[1],tr_in[1]), (tr_out[0],tr_in[0]), marker='o')
+    # # BR LINE (1399,775) (886, 533)
+    # plt.plot((br_out[1],br_in[1]), (br_out[0],br_in[0]), marker='o')
+    # # BL LINE (0,625) (886, 533)
+    # plt.plot((bl_out[1],bl_in[1]), (bl_out[0],bl_in[0]), marker='o')
 
     #array w inner rect panel
-    inner_rect_mask =(x < inner_rect_pts[2][0]) & (x > inner_rect_pts[0][0]) &(y < inner_rect_pts[2][1]) & (y > inner_rect_pts[0][1])
+    # inner_rect_mask =(x < inner_rect_pts[2][0]) & (x > inner_rect_pts[0][0]) &(y < inner_rect_pts[2][1]) & (y > inner_rect_pts[0][1])
+    # inner_rect_mask = np.stack([inner_rect_mask] * img.shape[2], axis=-1).astype(np.uint8)
+    # inner_rect = inner_rect_mask * img
+    # plt.imshow(inner_rect)     
+
+    inner_rect_mask = (x >= tl_in[1]) & (x <= tr_in[1]) & (y >= tl_in[0]) & (y <= bl_in[0])
     inner_rect_mask = np.stack([inner_rect_mask] * img.shape[2], axis=-1).astype(np.uint8)
     inner_rect = inner_rect_mask * img
-    plt.imshow(inner_rect)     
 
-    # #left panel
-    ### TODO: FIX THIS SIDE PANEL SO THE SLOPE ADJUSTS PROPERLY
-    left_panel_mask =  (y > (inner_rect_pts[0][1]/inner_rect_pts[0][0])*x) & (x < inner_rect_pts[0][0]) & (y < (inner_rect_pts[0][1])/-inner_rect_pts[0][0]*x + (h-1))
+    # TODO: ADD THEM but MAYBE DO THAT AT END BUT ACTUALLY JUST DO THAT TO CHECK
+
+    # left panel : CORRECT
+    top_m = (tl_in[0]-tl_out[0])/(tl_in[1]-tl_out[1])
+    bot_m = (bl_in[0]-bl_out[0])/(bl_in[1]-bl_out[1])
+    left_panel_mask = (x>0) & (x<tl_in[1]) & (y > top_m*x) & (y < (bot_m*x) +bl_out[0])
     left_panel_mask = np.stack([left_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
-    left_rect = (left_panel_mask * img)+inner_rect
-    plt.imshow(left_rect)
+    left_rect = (left_panel_mask * img)
+    # plt.imshow(left_rect)
 
+    # top panel : CORRECT
+    left_m = (tl_in[0]-tl_out[0])/(tl_in[1]-tl_out[1])
+    left_intercept = tl_in[0] - (left_m * tl_in[1])
+    right_m = (tr_in[0]-tr_out[0])/(tr_in[1]-tr_out[1])
+    right_intercept = tr_in[0] - (right_m * tr_in[1])
+    top_panel_mask = (y>tl_out[0]) & (y<tl_in[0]) & (y <(left_m*x) + left_intercept) & (y < (right_m*x) + right_intercept)
+    top_panel_mask = np.stack([top_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
+    top_rect = (top_panel_mask * img)
+    # plt.imshow(top_rect)
 
-    # #a disk
-    # plt.subplot(223)
-    # mask2=(200**2>(x-500)**2+(y-500)**2)
-    # plt.imshow(mask2,origin='lower',cmap='gray')
+    # right panel : CORRECT
+    top_m = (tr_in[0]-tr_out[0])/(tr_in[1]-tr_out[1])
+    top_intercept = tr_in[0] - (top_m * tr_in[1])
+    bot_m = (br_in[0]-br_out[0])/(br_in[1]-br_out[1])
+    bot_intercept = br_in[0] - (bot_m * br_in[1])
+    right_panel_mask = (x>tr_in[1]) & (x<tr_out[1]) & (y > (top_m*x) + top_intercept) & (y < (bot_m*x) + bot_intercept)
+    right_panel_mask = np.stack([right_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
+    right_rect = (right_panel_mask * img) 
+    # plt.imshow(right_rect)
 
-    # #a ying-yang attempt
-    # plt.subplot(224)
-    # mask3= (mask2 & (0 < np.sin(3.14*x/250)*100 + 500 - y) & (30**2 < (x-620)**2+(y-500)**2) )| (30**2 > (x-380)**2+(y-500)**2)
-    # plt.imshow(mask3,origin='lower',cmap='gray')
+    # bottom panel: TODO
+    left_m = (bl_in[0]-bl_out[0])/(bl_in[1]-bl_out[1])
+    left_intercept = bl_in[0] - (left_m * bl_in[1])
+    right_m = (br_in[0]-br_out[0])/(br_in[1]-br_out[1])
+    right_intercept = br_in[0] - (right_m * br_in[1])
+    bottom_panel_mask = (y>bl_in[0]) & (y<bl_out[0]) & (y > (left_m*x) + left_intercept) & (y > (right_m*x) + right_intercept)
+    bottom_panel_mask = np.stack([bottom_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
+    bottom_rect = (bottom_panel_mask * img)
+    plt.imshow(bottom_rect)
 
+    new = np.zeros_like(img)
+    new+= inner_rect+left_rect + top_rect + right_rect + bottom_rect
+
+    # able to cut into each
+    plt.imshow(new)
     plt.show()
 
 
@@ -252,7 +304,9 @@ if __name__ == '__main__':
     plt.show()
 
     height, width, _ = img.shape
-    inner_rect_pts = [[625,353],[775,353],[775,533],[625,533]]
+    # inner_rect_pts = [[625,353],[625,533],[775,533],[775,353]]
+    # where the first in the tuple is how far down it is and the second is how for to the right it is
+    inner_rect_pts = [[353,625],[353,775],[533,775],[533,625]]
     outer_rect_pts =[[0,0],[0,width-1],[height-1, width-1],[height-1, 0]]
 
     create_side_images(img,inner_rect_pts, outer_rect_pts, width, height)
