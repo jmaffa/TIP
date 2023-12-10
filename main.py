@@ -26,24 +26,28 @@ def project3Dto2D(img):
     # THOUGHT: top left inner rect. PROJECTS TO: top right inner rect
     # CV2 returns [[[1000.   143.5]]]
     # WE RETURN: 1000, 143.5
-    top_right = np.array([[.5],[-.5],[1]])
+    top_right_inner = np.array([[.5],[-.5],[1]])
+    top_right_outer = np.array([[.5],[-.5],[0]])
+
     # x,y,z = (.5,-.5,1) 
 
     # THOUGHT: bottom right PROJECTS TO: bottom left
-    bot_left = np.array([[-.5],[.5],[1]])
+    bot_left_inner = np.array([[-.5],[.5],[1]])
+    bot_left_outer = np.array([[-.5],[.5],[0]])
     # x,y,z = (-.5,.5,1)
 
     # THOUGHT: bottom left PROJECTS TO: top left
-    top_left = np.array([[-.5],[-.5],[1]])
+    top_left_inner = np.array([[-.5],[-.5],[1]])
+    top_left_outer = np.array([[-.5],[.5],[0]])
     # x,y,z = (-.5,-.5,1)
 
     # THOUGHT: top right PROJECTS TO: bottom right
-    bot_right = np.array([[.5],[.5],[1]])
+    bot_right_inner = np.array([[.5],[.5],[1]])
+    bot_right_outer = np.array([[-.5],[.5],[0]])
     # x,y,z = (.5,.5,1)
 
     # DEDUCE THAT THIS SHOULD BE TOP RIGHT OUTER RECT = imgwidth, 0
     # x,y,z = .5,-.5,-1
-
 
     # point_3d = np.vstack(([x],[y],[z]))
     # point_3d = np.array([[x,y,z]], np.float32)
@@ -52,55 +56,66 @@ def project3Dto2D(img):
     rotation = np.zeros((3, 1), np.float32) 
     # rotation = np.array([[0.2],[0],[0]])
     # translation = np.zeros((3, 1), np.float32) 
-    translation = np.array([[0],[1.0],[0]])
-
+    translation = np.array([[1.0],[1.0],[0]])
 
 
     # does matrix mult, then divides by z and returns an x,y?
-    top_right_2d, _ = cv2.projectPoints(top_right, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    top_left_2d, _ = cv2.projectPoints(top_left, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    bot_right_2d, _ = cv2.projectPoints(bot_right, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    bot_left_2d, _ = cv2.projectPoints(bot_left, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    top_right_2d_inner, _ = cv2.projectPoints(top_right_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # top_right_2d_outer, _ = cv2.projectPoints(top_right_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    top_left_2d_inner, _ = cv2.projectPoints(top_left_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # top_left_2d_outer, _ = cv2.projectPoints(top_left_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # print(top_left_2d_outer)
+    bot_right_2d_inner, _ = cv2.projectPoints(bot_right_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # bot_right_2d_outer, _ = cv2.projectPoints(bot_right_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    bot_left_2d_inner, _ = cv2.projectPoints(bot_left_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # bot_left_2d_outer, _ = cv2.projectPoints(bot_left_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
 
-    # x_p,y_p,z_p = np.dot(intrinsic_matrix,top_right)
 
-    top_right_2d_x = int(top_right_2d[0][0][0])
-    top_right_2d_y = int(top_right_2d[0][0][1])
-    new_img[top_right_2d_y,top_right_2d_x, :] = img[570,750,:]
+    # we may need ot project the 3d outer rect points
 
-    top_left_2d_x = int(top_left_2d[0][0][0])
-    top_left_2d_y = int(top_left_2d[0][0][1])
-    new_img[top_left_2d_y,top_left_2d_x, :] = img[570,650,:]
-    # print(top_left_2d_y,top_left_2d_x)
+    top_right_2d_x = int(top_right_2d_inner[0][0][0])
+    top_right_2d_y = int(top_right_2d_inner[0][0][1])
+    # new_img[top_right_2d_y,top_right_2d_x, :] = img[570,750,:]
 
-    bot_right_2d_x = int(bot_right_2d[0][0][0])
-    bot_right_2d_y = int(bot_right_2d[0][0][1])
-    new_img[bot_right_2d_y,bot_right_2d_x, :] = img[750,750,:]
+    top_left_2d_x = int(top_left_2d_inner[0][0][0])
+    top_left_2d_y = int(top_left_2d_inner[0][0][1])
+    # new_img[top_left_2d_y,top_left_2d_x, :] = img[570,650,:]
 
-    bot_left_2d_x = int(bot_left_2d[0][0][0])
-    bot_left_2d_y = int(bot_left_2d[0][0][1])
-    new_img[bot_left_2d_y,bot_left_2d_x, :] = img[750,650,:]
+    bot_right_2d_x = int(bot_right_2d_inner[0][0][0])
+    bot_right_2d_y = int(bot_right_2d_inner[0][0][1])
+    # new_img[bot_right_2d_y,bot_right_2d_x, :] = img[750,750,:]
 
-    new_img[0,0] = img[0,0]
-    new_img[0,width-1] = img[0,width-1]
-    new_img[height-1,0] = img[height-1,0]
-    new_img[height-1, width-1] = img[height-1, width-1]
+    bot_left_2d_x = int(bot_left_2d_inner[0][0][0])
+    bot_left_2d_y = int(bot_left_2d_inner[0][0][1])
+    # new_img[bot_left_2d_y,bot_left_2d_x, :] = img[750,650,:]
+
+    # tl_right_outer_x = int(top_left_2d_outer[0][0][0])
+
+    # print('test')
+    # print(tl_right_outer_x)
+    # new_img[0,0] = img[0,0]
+    # new_img[0,width-1] = img[0,width-1]
+    # new_img[height-1,0] = img[height-1,0]
+    # new_img[height-1, width-1] = img[height-1, width-1]
 
     # x_pts = [0,top_left_2d_x, width-1, top_right_2d_x]
     # y_pts = [0,top_left_2d_y, 0,top_right_2d_y]
 
     # MISNAMED X AND Y
     plt.plot((0,top_left_2d_x),(0,top_left_2d_y), marker='o')
-    print(top_left_2d_x, top_left_2d_y)
+    # print(top_left_2d_x, top_left_2d_y)
     plt.plot((width-1,top_right_2d_x),(0,top_right_2d_y), marker='o')
-    print(top_right_2d_x, top_right_2d_y)
+    # print(top_right_2d_x, top_right_2d_y)
     plt.plot((0,bot_left_2d_x),(height-1,bot_left_2d_y), marker='o')
-    print(bot_right_2d_x, bot_right_2d_y)
+    # print(bot_right_2d_x, bot_right_2d_y)
     plt.plot((width-1,bot_right_2d_x),(height-1,bot_right_2d_y), marker='o')
-    print(bot_left_2d_x, bot_left_2d_y)
+    # print(bot_left_2d_x, bot_left_2d_y)
 
-    projected_2d_coords = [(top_left_2d_x, top_left_2d_y), (top_right_2d_x, top_right_2d_y), (bot_right_2d_x, bot_right_2d_y), (bot_left_2d_x, bot_left_2d_y)]
-    return projected_2d_coords
+    projected_2d_outer = [[0,0],[0,width-1],[height-1, width-1],[height-1, 0]]
+    # projected_2d_outer = [ , int(top_left_2d_outer[0][0][0])), int((top_right_2d_outer[0][0][1]), int(top_right_2d_outer[0][0][0])), (int(bot_right_2d_outer[0][0][1]), int(bot_right_2d_outer[0][0][0])), (int(bot_left_2d_outer[0][0][1]), int(bot_left_2d_outer[0][0][0]))]
+    projected_2d_inner= [(top_left_2d_y, top_left_2d_x), (top_right_2d_y, top_right_2d_x), (bot_right_2d_y, bot_right_2d_x), (bot_left_2d_y, bot_left_2d_x)]
+    print(projected_2d_inner)
+    return projected_2d_inner, projected_2d_outer,
 
     # NOW SET THE TOP LEFT OF NEW TO BE TOP OF LEFT OF OLD AND ON AND ON
     # ONCE YOU HAVE 8 POINTS, TOP, BOTTOM, INNER, OUTER, LEFT, RIGHT
@@ -110,21 +125,7 @@ def project3Dto2D(img):
     #A B C D E F G H
     # old_pts = np.array([[0,0],[width-1,0],[width-1,height-1],[0,height-1],[625,353],[775,353],[775,533],[625,533]])
 
-    old_inner_rect = np.array([[625,353],[775,353],[775,533],[625,533]])
-    new_inner_rect = np.array([[top_left_2d_x,top_left_2d_y],[top_right_2d_x,top_right_2d_y],[bot_right_2d_x,bot_right_2d_y],[bot_left_2d_x,bot_left_2d_y]])
-    # are first four always going to be the same ????????????
-    # new_pts = np.array([[0,0],[width-1,0],[width-1,height-1],[0,height-1],[top_left_2d_x,top_left_2d_y],[top_right_2d_x,top_right_2d_y],[bot_right_2d_x,bot_right_2d_y],[bot_left_2d_x,bot_left_2d_y]])
-    # new_pts = 
-    
-    M, _ = cv2.findHomography(old_inner_rect,new_inner_rect)
-
-    old_img_inner_rect = img[353:533, 625:775, :]
-
-    output = cv2.warpPerspective(old_img_inner_rect, M,(width,height))
-    
-    final_fill = np.zeros((height, width, 3))
-
-    final_fill[top_left_2d_y:bot_left_2d_y, top_left_2d_x:top_right_2d_x, :] = old_img_inner_rect
+  
     
 
 
@@ -151,49 +152,6 @@ def project3Dto2D(img):
     # point correspondances
     # A = [[x1,y1],[x2,y2],...]
     # B = [[x1',y1']...]
-
-
-
-  
-# Define the camera matrix 
-# fx = 800
-# fy = 800
-# cx = 640
-# cy = 480
-# camera_matrix = np.array([[fx, 0, cx], 
-#                           [0, fy, cy], 
-#                           [0, 0, 1]], np.float32) 
-  
-# # Define the distortion coefficients 
-# dist_coeffs = np.zeros((5, 1), np.float32) 
-  
-# # Define the 3D point in the world coordinate system 
-# x, y, z = 10, 20, 30
-# points_3d = np.array([[[x, y, z]]], np.float32) 
-  
-# # Define the rotation and translation vectors 
-# rvec = np.zeros((3, 1), np.float32) 
-# tvec = np.zeros((3, 1), np.float32) 
-  
-# # Map the 3D point to 2D point 
-# points_2d, _ = cv2.projectPoints(points_3d, 
-#                                  rvec, tvec, 
-#                                  camera_matrix, 
-#                                  dist_coeffs) 
-  
-# # Display the 2D point 
-# print("2D Point:", points_2d) 
-    
-    
-# need an ima
-def create_rects(img, x,y,w,h):
-    plt.draw
-    pass
-
-def set_vanishing_point():
-    pass
-def set_foreground_billboards():
-    pass
 
 def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
       
@@ -279,7 +237,30 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     plt.imshow(new)
     plt.show()
 
+    return inner_rect, left_rect, top_rect, right_rect, bottom_rect
 
+def createHomography(old_quad, new_quad, img):
+    # old_inner_rect = np.array([[625,353],[775,353],[775,533],[625,533]])
+    # new_inner_rect = np.array([[top_left_2d_x,top_left_2d_y],[top_right_2d_x,top_right_2d_y],[bot_right_2d_x,bot_right_2d_y],[bot_left_2d_x,bot_left_2d_y]])
+    # # are first four always going to be the same ????????????
+    # # new_pts = np.array([[0,0],[width-1,0],[width-1,height-1],[0,height-1],[top_left_2d_x,top_left_2d_y],[top_right_2d_x,top_right_2d_y],[bot_right_2d_x,bot_right_2d_y],[bot_left_2d_x,bot_left_2d_y]])
+    # # new_pts = 
+    
+    M,_ = cv2.findHomography(old_quad,new_quad)
+    # M, _ = cv2.findHomography(old_inner_rect,new_inner_rect)
+
+    out = cv2.warpPerspective(img,M,(width,height))
+    # old_img_inner_rect = img[353:533, 625:775, :]
+
+    # output = cv2.warpPerspective(old_img_inner_rect, M,(width,height))
+    
+    final_fill = np.zeros((height, width, 3))
+    # np.where(out != 0, out, final_fill)
+    final_fill+= out
+    plt.imshow(final_fill)
+    plt.show()
+
+    # final_fill[top_left_2d_y:bot_left_2d_y, top_left_2d_x:top_right_2d_x, :] = old_img_inner_rect
 
 
 if __name__ == '__main__':
@@ -309,11 +290,21 @@ if __name__ == '__main__':
     # inner_rect_pts = [[625,353],[625,533],[775,533],[775,353]]
     # where the first in the tuple is how far down it is and the second is how for to the right it is
     inner_rect_pts = [[353,625],[353,775],[533,775],[533,625]]
+    # inner_rect_pts = [[533, 625], [533, 775], [713, 775], [713, 625]]
+    # inner_rect_pts = [[533, 775], [533, 925], [713, 925], [713, 775]]
     outer_rect_pts =[[0,0],[0,width-1],[height-1, width-1],[height-1, 0]]
 
-    create_side_images(img,inner_rect_pts, outer_rect_pts, width, height)
+    inner,left,top,right,bot = create_side_images(img,inner_rect_pts, outer_rect_pts, width, height)
 
-    project3Dto2D(img)
+    projected_inner,project_outer = project3Dto2D(img)
+
+    old_left = np.array([outer_rect_pts[0],inner_rect_pts[0],inner_rect_pts[3],outer_rect_pts[3]])
+    new_left = np.array([project_outer[0],projected_inner[0],projected_inner[3],project_outer[3]])
+    createHomography(old_left,new_left,left)
+    
+
+
+    # print(projected_inner,project_outer)
     # plt.imshow(background)
     # plt.show()
     # plt.imshow(foreground)
