@@ -52,7 +52,7 @@ def project3Dto2D(img):
     rotation = np.zeros((3, 1), np.float32) 
     # rotation = np.array([[0.2],[0],[0]])
     # translation = np.zeros((3, 1), np.float32) 
-    translation = np.array([[0],[0.0],[0]])
+    translation = np.array([[0],[1.0],[0]])
 
 
 
@@ -64,7 +64,6 @@ def project3Dto2D(img):
 
     # x_p,y_p,z_p = np.dot(intrinsic_matrix,top_right)
 
-    # THIS IS NOT RIGHT BECAUSE ITS GETTING FROM THE CORNERS OF THE IMAGE BUT WE WANT IT TO BE FROM THE CORNERS OF THE INNER RECT
     top_right_2d_x = int(top_right_2d[0][0][0])
     top_right_2d_y = int(top_right_2d[0][0][1])
     new_img[top_right_2d_y,top_right_2d_x, :] = img[570,750,:]
@@ -81,7 +80,6 @@ def project3Dto2D(img):
     bot_left_2d_x = int(bot_left_2d[0][0][0])
     bot_left_2d_y = int(bot_left_2d[0][0][1])
     new_img[bot_left_2d_y,bot_left_2d_x, :] = img[750,650,:]
-
 
     new_img[0,0] = img[0,0]
     new_img[0,width-1] = img[0,width-1]
@@ -100,6 +98,10 @@ def project3Dto2D(img):
     print(bot_right_2d_x, bot_right_2d_y)
     plt.plot((width-1,bot_right_2d_x),(height-1,bot_right_2d_y), marker='o')
     print(bot_left_2d_x, bot_left_2d_y)
+
+    projected_2d_coords = [(top_left_2d_x, top_left_2d_y), (top_right_2d_x, top_right_2d_y), (bot_right_2d_x, bot_right_2d_y), (bot_left_2d_x, bot_left_2d_y)]
+    return projected_2d_coords
+
     # NOW SET THE TOP LEFT OF NEW TO BE TOP OF LEFT OF OLD AND ON AND ON
     # ONCE YOU HAVE 8 POINTS, TOP, BOTTOM, INNER, OUTER, LEFT, RIGHT
     # DRAW LINES FROM EACH OF THEM TO BUILD THE "edges" of the cube through Z
