@@ -60,11 +60,15 @@ def project3Dto2D(translate_x, translate_y):
     # print(outer_rect_translated)
 
     # The translation comes out on the wrong side so we need to shift it back
-    translate_fix = 2*(inner_rect_untranslated[0][0] - inner_rect_translated[0][0])
+    translate_fix_x = 2*(inner_rect_untranslated[0][0] - inner_rect_translated[0][0])
+    # translate_fix_y = 2*(inner_rect_untranslated[0][1] - inner_rect_translated[0][1])
     # print(translate_fix)
     for i in range(4):
-        inner_rect_translated[i][0] += translate_fix
-        outer_rect_translated[i][0] += translate_fix
+        inner_rect_translated[i][0] += translate_fix_x
+        outer_rect_translated[i][0] += translate_fix_x
+
+        # inner_rect_translated[i][1] += translate_fix_y
+        # outer_rect_translated[i][1] += translate_fix_y
     
     # Draws lines to show if projection is "correct"
     plt.plot((outer_rect_untranslated[0][0], inner_rect_untranslated[0][0]), (outer_rect_untranslated[0][1],inner_rect_untranslated[0][1]), 'r')
@@ -310,8 +314,8 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     new+= inner_rect+left_rect + top_rect + right_rect + bottom_rect
 
     # able to cut into each
-    plt.imshow(new)
-    plt.show()
+    # plt.imshow(new)
+    # plt.show()
 
     return inner_rect, left_rect, top_rect, right_rect, bottom_rect
 
@@ -368,44 +372,84 @@ if __name__ == '__main__':
     height, width, _ = img.shape
     # inner_rect_pts = [[625,353],[625,533],[775,533],[775,353]]
     # where the first in the tuple is how far down it is and the second is how for to the right it is
-    i_u, o_u, i_t, o_t =project3Dto2D(translate_x=0,translate_y=0.3)
-    # projected_inner, projected_outer = 
-    # inner_rect_pts = [[353,625],[353,775],[533,775],[533,625]]
-    # inner_rect_pts = [[533, 625], [533, 775], [713, 775], [713, 625]]
-    # inner_rect_pts = [[533, 775], [533, 925], [713, 925], [713, 775]]
-    # outer_rect_pts =[[0,0],[0,width-1],[height-1, width-1],[height-1, 0]]
+    # when it passes the edge of the cube (.5, don't show the corresponding face)
+    # i_u, o_u, i_t, o_t =project3Dto2D(translate_x=0,translate_y=0)
 
-    inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
+    # SLIDESHOW :))) 
+    x_translations = np.arange(-0.45,0.45, 0.01)
+    for x_t in x_translations:
+        i_u, o_u, i_t, o_t =project3Dto2D(translate_x=x_t,translate_y=0)
+        inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
+        old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
+        new_left = np.array([o_t[0],i_t[0],i_t[3],o_t[3]])
 
-    
-    # print(projected_inner[0])
+        old_top= np.array([o_u[0],i_u[0],i_u[1],o_u[1]])
+        new_top = np.array([o_t[0],i_t[0],i_t[1],o_t[1]])
+
+        old_right = np.array([o_u[1],i_u[1],i_u[2],o_u[2]])
+        new_right = np.array([o_t[1],i_t[1],i_t[2],o_t[2]])
+
+        old_bottom = np.array([o_u[3],i_u[3],i_u[2],o_u[2]])
+        new_bottom = np.array([o_t[3],i_t[3],i_t[2],o_t[2]])
+
+        old_inner = np.array([i_u[0],i_u[1],i_u[2],i_u[3]])
+        new_inner = np.array([i_t[0],i_t[1],i_t[2],i_t[3]])
+
+        l_panel = createHomography(old_left,new_left,left)
+        t_panel = createHomography(old_top,new_top,top)
+        r_panel = createHomography(old_right,new_right,right)
+        b_panel = createHomography(old_bottom,new_bottom,bot)
+        inner_panel = createHomography(old_inner,new_inner,inner)
+
+        out = np.zeros_like(img)
+        out+= l_panel+t_panel+r_panel+b_panel+inner_panel
+
+        out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
+        cv2.imshow("window",out)
+        cv2.waitKey(2)
+
+    y_translations = np.arange(-0.45,0.45, 0.01)
+    for y_t in y_translations:
+        i_u, o_u, i_t, o_t =project3Dto2D(translate_x=0,translate_y=y_t)
+        inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
+        old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
+        new_left = np.array([o_t[0],i_t[0],i_t[3],o_t[3]])
+
+        old_top= np.array([o_u[0],i_u[0],i_u[1],o_u[1]])
+        new_top = np.array([o_t[0],i_t[0],i_t[1],o_t[1]])
+
+        old_right = np.array([o_u[1],i_u[1],i_u[2],o_u[2]])
+        new_right = np.array([o_t[1],i_t[1],i_t[2],o_t[2]])
+
+        old_bottom = np.array([o_u[3],i_u[3],i_u[2],o_u[2]])
+        new_bottom = np.array([o_t[3],i_t[3],i_t[2],o_t[2]])
+
+        old_inner = np.array([i_u[0],i_u[1],i_u[2],i_u[3]])
+        new_inner = np.array([i_t[0],i_t[1],i_t[2],i_t[3]])
+
+        l_panel = createHomography(old_left,new_left,left)
+        t_panel = createHomography(old_top,new_top,top)
+        r_panel = createHomography(old_right,new_right,right)
+        b_panel = createHomography(old_bottom,new_bottom,bot)
+        inner_panel = createHomography(old_inner,new_inner,inner)
+
+        out = np.zeros_like(img)
+        out+= l_panel+t_panel+r_panel+b_panel+inner_panel
+
+        out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
+        cv2.imshow("window",out)
+        cv2.waitKey(2)
+        
+
+
+    # inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
     
     # These faces don't correspond in new configuration (bl,br,tr,tl) used to be (tl,tr,br,bl)
-    old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
-    new_left = np.array([o_t[0],i_t[0],i_t[3],o_t[3]])
+    
 
-    old_top= np.array([o_u[0],i_u[0],i_u[1],o_u[1]])
-    new_top = np.array([o_t[0],i_t[0],i_t[1],o_t[1]])
-
-    old_right = np.array([o_u[1],i_u[1],i_u[2],o_u[2]])
-    new_right = np.array([o_t[1],i_t[1],i_t[2],o_t[2]])
-
-    old_bottom = np.array([o_u[3],i_u[3],i_u[2],o_u[2]])
-    new_bottom = np.array([o_t[3],i_t[3],i_t[2],o_t[2]])
-
-    old_inner = np.array([i_u[0],i_u[1],i_u[2],i_u[3]])
-    new_inner = np.array([i_t[0],i_t[1],i_t[2],i_t[3]])
-
-    l_panel = createHomography(old_left,new_left,left)
-    t_panel = createHomography(old_top,new_top,top)
-    r_panel = createHomography(old_right,new_right,right)
-    b_panel = createHomography(old_bottom,new_bottom,bot)
-    inner_panel = createHomography(old_inner,new_inner,inner)
-
-    out = np.zeros_like(img)
-    out+= l_panel+t_panel+r_panel+b_panel + inner_panel
-    plt.imshow(out)
-    plt.show()
+    # plt.imshow(out)
+    # # plt.imshow(out)
+    # plt.show()
     
     # print(projected_inner,project_outer)
     # plt.imshow(background)
