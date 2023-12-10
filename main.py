@@ -23,24 +23,24 @@ def project3Dto2D():
     dist_coeffs = np.zeros((5, 1), np.float32) 
 
     #PROJECTS TO: top right inner rect
-    top_right_inner = np.array([[.5],[-.5],[1]])
-    top_right_outer = np.array([[.5],[-.5],[0.3]])
+    top_right_inner = np.array([[.5],[-.5],[1], [1]])
+    top_right_outer = np.array([[.5],[-.5],[0.3],[1]])
 
     # x,y,z = (.5,-.5,1) 
 
     # PROJECTS TO: bottom left
-    bot_left_inner = np.array([[-.5],[.5],[1]])
-    bot_left_outer = np.array([[-.5],[.5],[0.3]])
+    bot_left_inner = np.array([[-.5],[.5],[1], [1]])
+    bot_left_outer = np.array([[-.5],[.5],[0.3],[1]])
     # x,y,z = (-.5,.5,1)
 
     # PROJECTS TO: top left
-    top_left_inner = np.array([[-.5],[-.5],[1]])
-    top_left_outer = np.array([[-.5],[-.5],[0.3]])
+    top_left_inner = np.array([[-.5],[-.5],[1],[1]])
+    top_left_outer = np.array([[-.5],[-.5],[0.3],[1]])
     # x,y,z = (-.5,-.5,1)
 
     # PROJECTS TO: bottom right
-    bot_right_inner = np.array([[.5],[.5],[1]])
-    bot_right_outer = np.array([[.5],[.5],[0.3]])
+    bot_right_inner = np.array([[.5],[.5],[1],[1]])
+    bot_right_outer = np.array([[.5],[.5],[0.3],[1]])
     # x,y,z = (.5,.5,1)
 
     # DEDUCE THAT THIS SHOULD BE TOP RIGHT OUTER RECT = imgwidth, 0
@@ -51,48 +51,64 @@ def project3Dto2D():
 
     # extrinsic but also they are needed for the cv2 function
     # rotation = np.zeros((3, 1), np.float32) 
-    rotation = np.array([[0],[0],[0.0]])
+    # rotation = np.array([[0],[0],[0.0]])
     # rotation = np.array([[0.2],[0],[0]])
     # translation = np.zeros((3, 1), np.float32) 
-    translation = np.array([[-1.0],[1.0],[0.0]])
+    # translation = np.array([[-1.0],[1.0],[0.0]])
+    tx = 0
+    ty = 0
+    tz = 0 
+    extrinsic_matrix = np.array([[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz]])
+
+
 
 
     # does matrix mult, then divides by z and returns an x,y?
-    top_right_2d_inner, _ = cv2.projectPoints(top_right_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    top_right_2d_outer, _ = cv2.projectPoints(top_right_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    top_left_2d_inner, _ = cv2.projectPoints(top_left_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    top_left_2d_outer, _ = cv2.projectPoints(top_left_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    # print(top_left_2d_outer)
-    bot_right_2d_inner, _ = cv2.projectPoints(bot_right_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    bot_right_2d_outer, _ = cv2.projectPoints(bot_right_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    bot_left_2d_inner, _ = cv2.projectPoints(bot_left_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
-    bot_left_2d_outer, _ = cv2.projectPoints(bot_left_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    camera_matrix = np.dot(intrinsic_matrix, extrinsic_matrix)
+    top_right_2d_inner = np.dot(camera_matrix, top_right_inner)
+    top_right_2d_outer = np.dot(camera_matrix, top_right_outer)
+    top_left_2d_inner = np.dot(camera_matrix, top_left_inner)
+    top_left_2d_outer = np.dot(camera_matrix, top_left_outer)
+    bot_right_2d_inner = np.dot(camera_matrix, bot_right_inner)
+    bot_right_2d_outer = np.dot(camera_matrix, bot_right_outer)
+    bot_left_2d_inner = np.dot(camera_matrix, bot_left_inner)
+    bot_left_2d_outer = np.dot(camera_matrix, bot_left_outer)
+
+    # top_right_2d_inner, _ = cv2.projectPoints(top_right_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # top_right_2d_outer, _ = cv2.projectPoints(top_right_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # top_left_2d_inner, _ = cv2.projectPoints(top_left_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # top_left_2d_outer, _ = cv2.projectPoints(top_left_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # # print(top_left_2d_outer)
+    # bot_right_2d_inner, _ = cv2.projectPoints(bot_right_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # bot_right_2d_outer, _ = cv2.projectPoints(bot_right_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # bot_left_2d_inner, _ = cv2.projectPoints(bot_left_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
+    # bot_left_2d_outer, _ = cv2.projectPoints(bot_left_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
 
 
     # we may need ot project the 3d outer rect points
 
-    top_right_2d_x = int(top_right_2d_inner[0][0][0])
-    top_right_2d_y = int(top_right_2d_inner[0][0][1])
-    top_right_2d_x_outer = int(top_right_2d_outer[0][0][0])
-    top_right_2d_y_outer = int(top_right_2d_outer[0][0][1])
+    top_right_2d_x = int(top_right_2d_inner[0][0])
+    top_right_2d_y = int(top_right_2d_inner[1][0])
+    top_right_2d_x_outer = int(top_right_2d_outer[0][0])
+    top_right_2d_y_outer = int(top_right_2d_outer[1][0])
     # new_img[top_right_2d_y,top_right_2d_x, :] = img[570,750,:]
 
-    top_left_2d_x = int(top_left_2d_inner[0][0][0])
-    top_left_2d_y = int(top_left_2d_inner[0][0][1])
-    top_left_2d_x_outer = int(top_left_2d_outer[0][0][0])
-    top_left_2d_y_outer = int(top_left_2d_outer[0][0][1])
+    top_left_2d_x = int(top_left_2d_inner[0][0])
+    top_left_2d_y = int(top_left_2d_inner[1][0])
+    top_left_2d_x_outer = int(top_left_2d_outer[0][0])
+    top_left_2d_y_outer = int(top_left_2d_outer[1][0])
     # new_img[top_left_2d_y,top_left_2d_x, :] = img[570,650,:]
 
-    bot_right_2d_x = int(bot_right_2d_inner[0][0][0])
-    bot_right_2d_y = int(bot_right_2d_inner[0][0][1])
-    bot_right_2d_x_outer = int(bot_right_2d_outer[0][0][0])
-    bot_right_2d_y_outer = int(bot_right_2d_outer[0][0][1])
+    bot_right_2d_x = int(bot_right_2d_inner[0][0])
+    bot_right_2d_y = int(bot_right_2d_inner[1][0])
+    bot_right_2d_x_outer = int(bot_right_2d_outer[0][0])
+    bot_right_2d_y_outer = int(bot_right_2d_outer[1][0])
     # new_img[bot_right_2d_y,bot_right_2d_x, :] = img[750,750,:]
 
-    bot_left_2d_x = int(bot_left_2d_inner[0][0][0])
-    bot_left_2d_y = int(bot_left_2d_inner[0][0][1])
-    bot_left_2d_x_outer = int(bot_left_2d_outer[0][0][0])
-    bot_left_2d_y_outer = int(bot_left_2d_outer[0][0][1])
+    bot_left_2d_x = int(bot_left_2d_inner[0][0])
+    bot_left_2d_y = int(bot_left_2d_inner[1][0])
+    bot_left_2d_x_outer = int(bot_left_2d_outer[0][0])
+    bot_left_2d_y_outer = int(bot_left_2d_outer[1][0])
     # new_img[bot_left_2d_y,bot_left_2d_x, :] = img[750,650,:]
 
     # tl_right_outer_x = int(top_left_2d_outer[0][0][0])
