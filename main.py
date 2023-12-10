@@ -5,7 +5,7 @@ import numpy as np
 
 
 fx = 100
-fy = 300
+fy = 100
 width = 0
 height = 0
 
@@ -368,7 +368,7 @@ if __name__ == '__main__':
     height, width, _ = img.shape
     # inner_rect_pts = [[625,353],[625,533],[775,533],[775,353]]
     # where the first in the tuple is how far down it is and the second is how for to the right it is
-    i_u, o_u, i_t, o_t =project3Dto2D(translate_x=-0.3,translate_y=0)
+    i_u, o_u, i_t, o_t =project3Dto2D(translate_x=0,translate_y=0.3)
     # projected_inner, projected_outer = 
     # inner_rect_pts = [[353,625],[353,775],[533,775],[533,625]]
     # inner_rect_pts = [[533, 625], [533, 775], [713, 775], [713, 625]]
@@ -381,26 +381,26 @@ if __name__ == '__main__':
     # print(projected_inner[0])
     
     # These faces don't correspond in new configuration (bl,br,tr,tl) used to be (tl,tr,br,bl)
-    # old_left = np.array([outer_rect_pts[0],inner_rect_pts[0],inner_rect_pts[3],outer_rect_pts[3]])
-    # new_left = np.array([projected_outer[0],projected_inner[0],projected_inner[3],projected_outer[3]])
+    old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
+    new_left = np.array([o_t[0],i_t[0],i_t[3],o_t[3]])
 
-    # old_top= np.array([outer_rect_pts[0],inner_rect_pts[0],inner_rect_pts[1],outer_rect_pts[1]])
-    # new_top = np.array([projected_outer[0],projected_inner[0],projected_inner[1],projected_outer[1]])
+    old_top= np.array([o_u[0],i_u[0],i_u[1],o_u[1]])
+    new_top = np.array([o_t[0],i_t[0],i_t[1],o_t[1]])
 
-    # old_right = np.array([outer_rect_pts[1],inner_rect_pts[1],inner_rect_pts[2],outer_rect_pts[2]])
-    # new_right = np.array([projected_outer[1],projected_inner[1],projected_inner[2],projected_outer[2]])
+    old_right = np.array([o_u[1],i_u[1],i_u[2],o_u[2]])
+    new_right = np.array([o_t[1],i_t[1],i_t[2],o_t[2]])
 
-    # old_bottom = np.array([outer_rect_pts[3],inner_rect_pts[3],inner_rect_pts[2],outer_rect_pts[2]])
-    # new_bottom = np.array([projected_outer[3],projected_inner[3],projected_inner[2],projected_outer[2]])
+    old_bottom = np.array([o_u[3],i_u[3],i_u[2],o_u[2]])
+    new_bottom = np.array([o_t[3],i_t[3],i_t[2],o_t[2]])
 
-    # old_inner = np.array([inner_rect_pts[0],inner_rect_pts[1],inner_rect_pts[2],inner_rect_pts[3]])
-    # new_inner = np.array([projected_inner[0],projected_inner[1],projected_inner[2],projected_inner[3]])
+    old_inner = np.array([i_u[0],i_u[1],i_u[2],i_u[3]])
+    new_inner = np.array([i_t[0],i_t[1],i_t[2],i_t[3]])
 
-    # l_panel = createHomography(old_left,new_left,left)
-    # t_panel = createHomography(old_top,new_top,top)
-    # r_panel = createHomography(old_right,new_right,right)
-    # b_panel = createHomography(old_bottom,new_bottom,bot)
-    # inner_panel = createHomography(old_inner,new_inner,inner)
+    l_panel = createHomography(old_left,new_left,left)
+    t_panel = createHomography(old_top,new_top,top)
+    r_panel = createHomography(old_right,new_right,right)
+    b_panel = createHomography(old_bottom,new_bottom,bot)
+    inner_panel = createHomography(old_inner,new_inner,inner)
 
     out = np.zeros_like(img)
     out+= l_panel+t_panel+r_panel+b_panel + inner_panel
