@@ -4,14 +4,17 @@ import numpy as np
 
 
 
-fx = 150
-fy = 180
+fx = 100
+fy = 100
 width = 0
 height = 0
 
 
 # the inner rectangle becomes the size of the fx, fy ?????
 def project3Dto2D():
+    # perhaps we need to project the image when untranslated, get the inner and outer rectangle points (R)
+    # then project 8 points again when translated, get the inner and outer rectangle points (R')
+    
     # [fx 0 w/2]
     # [0 fy h/2]
     # [0 0 1]
@@ -20,7 +23,7 @@ def project3Dto2D():
                                 [0, 0, 1]], np.float32) 
     
     # ???
-    dist_coeffs = np.zeros((5, 1), np.float32) 
+    # dist_coeffs = np.zeros((5, 1), np.float32) 
 
     #PROJECTS TO: top right inner rect
     top_right_inner = np.array([[.5],[-.5],[1], [1]])
@@ -55,24 +58,35 @@ def project3Dto2D():
     # rotation = np.array([[0.2],[0],[0]])
     # translation = np.zeros((3, 1), np.float32) 
     # translation = np.array([[-1.0],[1.0],[0.0]])
-    tx = 0
+    tx = 1
     ty = 0
     tz = 0 
     extrinsic_matrix = np.array([[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz]])
 
 
-
-
     # does matrix mult, then divides by z and returns an x,y?
     camera_matrix = np.dot(intrinsic_matrix, extrinsic_matrix)
-    top_right_2d_inner = np.dot(camera_matrix, top_right_inner)
+
+    top_right_2d_inner = np.dot(camera_matrix, top_right_inner) 
+    top_right_2d_inner = top_right_2d_inner / top_right_2d_inner[2][0]
     top_right_2d_outer = np.dot(camera_matrix, top_right_outer)
+    top_right_2d_outer = top_right_2d_outer / top_right_2d_outer[2][0]
+
     top_left_2d_inner = np.dot(camera_matrix, top_left_inner)
+    top_left_2d_inner = top_left_2d_inner / top_left_2d_inner[2][0]
     top_left_2d_outer = np.dot(camera_matrix, top_left_outer)
+    top_left_2d_outer = top_left_2d_outer / top_left_2d_outer[2][0]
+
     bot_right_2d_inner = np.dot(camera_matrix, bot_right_inner)
+    bot_right_2d_inner = bot_right_2d_inner / bot_right_2d_inner[2][0]
     bot_right_2d_outer = np.dot(camera_matrix, bot_right_outer)
+    bot_right_2d_outer = bot_right_2d_outer / bot_right_2d_outer[2][0]
+
     bot_left_2d_inner = np.dot(camera_matrix, bot_left_inner)
+    bot_left_2d_inner = bot_left_2d_inner / bot_left_2d_inner[2][0]
     bot_left_2d_outer = np.dot(camera_matrix, bot_left_outer)
+    bot_left_2d_outer = bot_left_2d_outer / bot_left_2d_outer[2][0]
+
 
     # top_right_2d_inner, _ = cv2.projectPoints(top_right_inner, rotation, translation, intrinsic_matrix, dist_coeffs) 
     # top_right_2d_outer, _ = cv2.projectPoints(top_right_outer, rotation, translation, intrinsic_matrix, dist_coeffs) 
@@ -254,7 +268,7 @@ def createHomography(old_quad, new_quad, img):
     # print(old_quad)
     # print(new_quad)
     
-    M,_ = cv2.findHomography(old_quad,new_quad,)
+    M,_ = cv2.findHomography(old_quad,new_quad)
     # M, _ = cv2.findHomography(old_inner_rect,new_inner_rect)
     # print(M.shape)
     out = cv2.warpPerspective(img,M,(int(width),int(height)))
