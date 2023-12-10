@@ -24,23 +24,23 @@ def project3Dto2D():
 
     #PROJECTS TO: top right inner rect
     top_right_inner = np.array([[.5],[-.5],[1]])
-    top_right_outer = np.array([[.5],[-.5],[0.1]])
+    top_right_outer = np.array([[.5],[-.5],[0.3]])
 
     # x,y,z = (.5,-.5,1) 
 
     # PROJECTS TO: bottom left
     bot_left_inner = np.array([[-.5],[.5],[1]])
-    bot_left_outer = np.array([[-.5],[.5],[0.01]])
+    bot_left_outer = np.array([[-.5],[.5],[0.3]])
     # x,y,z = (-.5,.5,1)
 
     # PROJECTS TO: top left
     top_left_inner = np.array([[-.5],[-.5],[1]])
-    top_left_outer = np.array([[-.5],[-.5],[0.01]])
+    top_left_outer = np.array([[-.5],[-.5],[0.3]])
     # x,y,z = (-.5,-.5,1)
 
     # PROJECTS TO: bottom right
     bot_right_inner = np.array([[.5],[.5],[1]])
-    bot_right_outer = np.array([[.5],[.5],[0.01]])
+    bot_right_outer = np.array([[.5],[.5],[0.3]])
     # x,y,z = (.5,.5,1)
 
     # DEDUCE THAT THIS SHOULD BE TOP RIGHT OUTER RECT = imgwidth, 0
@@ -54,7 +54,7 @@ def project3Dto2D():
     rotation = np.array([[0],[0],[0.0]])
     # rotation = np.array([[0.2],[0],[0]])
     # translation = np.zeros((3, 1), np.float32) 
-    translation = np.array([[0],[0.0],[0.0]])
+    translation = np.array([[-1.0],[1.0],[0.0]])
 
 
     # does matrix mult, then divides by z and returns an x,y?
@@ -108,18 +108,22 @@ def project3Dto2D():
     # y_pts = [0,top_left_2d_y, 0,top_right_2d_y]
 
     #IS X AND Y FLIPPED?
-    plt.plot((0,top_left_2d_x),(0,top_left_2d_y), marker='o')
-    # print(top_left_2d_x, top_left_2d_y)
-    plt.plot((width-1,top_right_2d_x),(0,top_right_2d_y), marker='o')
+    plt.plot((top_left_2d_x_outer,top_left_2d_x),(top_left_2d_y_outer,top_left_2d_y), marker='o')
+    # plt.plot((0,top_left_2d_x),(0,top_left_2d_y), marker='o')
+    print(top_left_2d_x_outer, top_left_2d_y_outer)
+    # plt.plot((width-1,top_right_2d_x),(0,top_right_2d_y), marker='o')
+    plt.plot((top_right_2d_x_outer,top_right_2d_x),(top_right_2d_y_outer,top_right_2d_y), marker='o')
     # print(top_right_2d_x, top_right_2d_y)
-    plt.plot((0,bot_left_2d_x),(height-1,bot_left_2d_y), marker='o')
+    # plt.plot((0,bot_left_2d_x),(height-1,bot_left_2d_y), marker='o')
+    plt.plot((bot_left_2d_x_outer,bot_left_2d_x),(bot_left_2d_y_outer,bot_left_2d_y), marker='o')
     # print(bot_right_2d_x, bot_right_2d_y)
-    plt.plot((width-1,bot_right_2d_x),(height-1,bot_right_2d_y), marker='o')
+    # plt.plot((width-1,bot_right_2d_x),(height-1,bot_right_2d_y), marker='o')
+    plt.plot((bot_right_2d_x_outer,bot_right_2d_x),(bot_right_2d_y_outer,bot_right_2d_y), marker='o')
     # print(bot_left_2d_x, bot_left_2d_y)
 
 
-    # projected_2d_outer = [(top_left_2d_y_outer, top_left_2d_x_outer), (top_right_2d_y_outer, top_right_2d_x_outer), (bot_right_2d_y_outer, bot_right_2d_x_outer), (bot_left_2d_y_outer, bot_left_2d_x_outer)]
-    projected_2d_outer = [[0,0],[0,width-1],[height-1, width-1],[height-1, 0]]
+    projected_2d_outer = [(top_left_2d_y_outer, top_left_2d_x_outer), (top_right_2d_y_outer, top_right_2d_x_outer), (bot_right_2d_y_outer, bot_right_2d_x_outer), (bot_left_2d_y_outer, bot_left_2d_x_outer)]
+    # projected_2d_outer = [[0,0],[0,width-1],[height-1, width-1],[height-1, 0]]
 
     # projected_2d_outer = [ (int(top_left_2d_outer[0][0][0])), (int(top_left_2d_outer[0][0][0])), int((top_right_2d_outer[0][0][1]), int(top_right_2d_outer[0][0][0])), (int(bot_right_2d_outer[0][0][1]), int(bot_right_2d_outer[0][0][0])), (int(bot_left_2d_outer[0][0][1]), int(bot_left_2d_outer[0][0][0]))]
     projected_2d_inner = [(top_left_2d_y, top_left_2d_x), (top_right_2d_y, top_right_2d_x), (bot_right_2d_y, bot_right_2d_x), (bot_left_2d_y, bot_left_2d_x)]
@@ -231,12 +235,12 @@ def createHomography(old_quad, new_quad, img):
     # # are first four always going to be the same ????????????
     # # new_pts = np.array([[0,0],[width-1,0],[width-1,height-1],[0,height-1],[top_left_2d_x,top_left_2d_y],[top_right_2d_x,top_right_2d_y],[bot_right_2d_x,bot_right_2d_y],[bot_left_2d_x,bot_left_2d_y]])
     # # new_pts = 
-    print(old_quad)
-    print(new_quad)
+    # print(old_quad)
+    # print(new_quad)
     
     M,_ = cv2.findHomography(old_quad,new_quad,)
     # M, _ = cv2.findHomography(old_inner_rect,new_inner_rect)
-    print(M.shape)
+    # print(M.shape)
     out = cv2.warpPerspective(img,M,(int(width),int(height)))
     # old_img_inner_rect = img[353:533, 625:775, :]
 
