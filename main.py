@@ -2,16 +2,13 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-
 fx = 100
 fy = 130
 width = 0
 height = 0
 
-
 # the inner rectangle becomes the size of the fx, fy ?????
-def project3Dto2D(translate_x, translate_y):
+def project3Dto2D(translate_x, translate_y, fx, fy, width, height):
     # perhaps we need to project the image when untranslated, get the inner and outer rectangle points (R)
 
     # NOTE changing the width and height parameters moves the inner rectangle, 2.2*height/3 fits for 1_full.jpg pretty well :]
@@ -254,15 +251,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     # # # BL LINE (0,625) (886, 533)
     # plt.plot((bl_out[1],bl_in[1]), (bl_out[0],bl_in[0]), marker='o')
 
-    #array w inner rect panel
-    # inner_rect_mask =(x < inner_rect_pts[2][0]) & (x > inner_rect_pts[0][0]) &(y < inner_rect_pts[2][1]) & (y > inner_rect_pts[0][1])
-    # inner_rect_mask = np.stack([inner_rect_mask] * img.shape[2], axis=-1).astype(np.uint8)
-    # inner_rect = inner_rect_mask * img
-    # plt.imshow(inner_rect)     
-
-    # inner_rect_mask = (x >= tl_in[1]) & (x <= tr_in[1]) & (y >= tl_in[0]) & (y <= bl_in[0])
     inner_rect_mask = (x > tl_in[0]) & (x < tr_in[0]) & (y > tl_in[1]) & (y < bl_in[1])
-
     inner_rect_mask = np.stack([inner_rect_mask] * img.shape[2], axis=-1).astype(np.uint8)
     inner_rect = inner_rect_mask * img
 
@@ -319,7 +308,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
 
     return inner_rect, left_rect, top_rect, right_rect, bottom_rect
 
-def createHomography(old_quad, new_quad, img):
+def createHomography(old_quad, new_quad, img, width, height):
     # old_inner_rect = np.array([[625,353],[775,353],[775,533],[625,533]])
     # new_inner_rect = np.array([[top_left_2d_x,top_left_2d_y],[top_right_2d_x,top_right_2d_y],[bot_right_2d_x,bot_right_2d_y],[bot_left_2d_x,bot_left_2d_y]])
     # # are first four always going to be the same ????????????
@@ -345,11 +334,11 @@ def createHomography(old_quad, new_quad, img):
 
     # final_fill[top_left_2d_y:bot_left_2d_y, top_left_2d_x:top_right_2d_x, :] = old_img_inner_rect
 
-def create_animation(points):
+def create_animation(points, img, width, height, fx, fy):
     for x_t,y_t in points:
         if np.isclose(x_t,0.5) or np.isclose(x_t,-0.5) or np.isclose(y_t,0.5) or np.isclose(y_t,-0.5):
             continue 
-        i_u, o_u, i_t, o_t =project3Dto2D(translate_x=x_t,translate_y=y_t)
+        i_u, o_u, i_t, o_t = project3Dto2D(translate_x=x_t,translate_y=y_t, fx=fx, fy=fy, width=width, height=height)
         inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
         old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
         new_left = np.array([o_t[0],i_t[0],i_t[3],o_t[3]])
@@ -366,11 +355,11 @@ def create_animation(points):
         old_inner = np.array([i_u[0],i_u[1],i_u[2],i_u[3]])
         new_inner = np.array([i_t[0],i_t[1],i_t[2],i_t[3]])
 
-        l_panel = createHomography(old_left,new_left,left)
-        t_panel = createHomography(old_top,new_top,top)
-        r_panel = createHomography(old_right,new_right,right)
-        b_panel = createHomography(old_bottom,new_bottom,bot)
-        inner_panel = createHomography(old_inner,new_inner,inner)
+        l_panel = createHomography(old_left,new_left,left, width, height)
+        t_panel = createHomography(old_top,new_top,top, width, height)
+        r_panel = createHomography(old_right,new_right,right, width, height)
+        b_panel = createHomography(old_bottom,new_bottom,bot, width, height)
+        inner_panel = createHomography(old_inner,new_inner,inner, width, height)
 
         out = np.zeros_like(img)
         if x_t > -.5:
@@ -387,29 +376,19 @@ def create_animation(points):
         out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
         cv2.imshow("window",out)
         cv2.waitKey(2)
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    # full image
-    # background image
-    # foreground image
     img = cv2.imread("data/1_full.jpg")
-    # background = cv2.imread("data/1_background.jpg")
-    # foreground = cv2.imread("data/1_foreground.jpg")
-
     img = img.astype(np.float32) / 255.
-    # background = background.astype(np.float32) / 255.
-    # foreground = foreground.astype(np.float32) / 255.
-
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-    # foreground = cv2.cvtColor(foreground, cv2.COLOR_BGR2RGB)
     
     # width = img.shape[1]
     # # print(width)
     # height = img.shape[0]
     # # print(height)
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
 
     height, width, _ = img.shape
     # inner_rect_pts = [[625,353],[625,533],[775,533],[775,353]]
@@ -420,14 +399,14 @@ if __name__ == '__main__':
     # X translation animation
     x_translations = np.arange(-0.7,0.7, 0.01)
     points = np.column_stack((x_translations, np.zeros_like(x_translations)))
-    # create_animation(points)
+    # create_animation(points,img, width, height, fx, fy)
 
     #  Y Translation animation
     y_translations = np.arange(-0.7,0.7, 0.01)
     points = np.column_stack((np.zeros_like(y_translations), y_translations))
-    # create_animation(points)
+    # create_animation(points,img, width, height, fx, fy)
  
     # Circular Translation Animation
     theta = np.arange(0, 2*np.pi, 0.05)
     points = np.column_stack((0.3 * np.cos(theta), 0.3 * np.sin(theta)))
-    create_animation(points)
+    create_animation(points,img, width, height, fx, fy)
