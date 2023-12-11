@@ -5,7 +5,7 @@ import numpy as np
 
 
 fx = 100
-fy = 100
+fy = 130
 width = 0
 height = 0
 
@@ -14,9 +14,9 @@ height = 0
 def project3Dto2D(translate_x, translate_y):
     # perhaps we need to project the image when untranslated, get the inner and outer rectangle points (R)
 
-    # THE X Y MIGHT BE REVERSED AGAIN SMH
+    # NOTE changing the width and height parameters moves the inner rectangle, 2.2*height/3 fits for 1_full.jpg pretty well :]
     intrinsic_matrix= np.array([[fx, 0, width/2], 
-                                [0, fy, height/2], 
+                                [0, fy, 2.2*height/3], 
                                 [0, 0, 1]], np.float32) 
     inner_3d = np.array([[-.5,-.5,1,1], [.5,-.5,1,1], [.5,.5,1,1], [-.5,.5,1,1]], np.float32)
     outer_3d = np.array([[-.5,-.5,0.3,1], [.5,-.5,0.3,1], [.5,.5,0.3,1], [-.5,.5,0.3,1]], np.float32)
@@ -82,12 +82,12 @@ def project3Dto2D(translate_x, translate_y):
     plt.plot((outer_rect_translated[3][0], inner_rect_translated[3][0]), (outer_rect_translated[3][1],inner_rect_translated[3][1]), 'b')
 
     # int everything so you can use them as indices
-    for i in range(4):
-        for j in range(2):
-            inner_rect_untranslated[i][j] = int(inner_rect_untranslated[i][j])
-            outer_rect_untranslated[i][j] = int(outer_rect_untranslated[i][j])
-            inner_rect_translated[i][j] = int(inner_rect_translated[i][j])
-            outer_rect_translated[i][j] = int(outer_rect_translated[i][j])
+    # for i in range(4):
+    #     for j in range(2):
+    #         inner_rect_untranslated[i][j] = int(inner_rect_untranslated[i][j])
+    #         outer_rect_untranslated[i][j] = int(outer_rect_untranslated[i][j])
+    #         inner_rect_translated[i][j] = int(inner_rect_translated[i][j])
+    #         outer_rect_translated[i][j] = int(outer_rect_translated[i][j])
     return inner_rect_untranslated, outer_rect_untranslated, inner_rect_translated, outer_rect_translated
     plt.show()
     # outer rect untranslated
@@ -276,7 +276,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     left_panel_mask = (x>0) & (x<tl_in[0]) & (y > top_m*x + top_intercept) & (y < (bot_m*x) + bot_intercept)
     left_panel_mask = np.stack([left_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
     left_rect = (left_panel_mask * img)
-    plt.imshow(left_rect)
+    # plt.imshow(left_rect)
 
     # top panel : ??
     left_m = (tl_in[1]-tl_out[1])/(tl_in[0]-tl_out[0])
@@ -288,7 +288,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     top_panel_mask =  (y<tl_in[1]) & (y <(left_m*x) + left_intercept) & (y < (right_m*x) + right_intercept)
     top_panel_mask = np.stack([top_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
     top_rect = (top_panel_mask * img)
-    plt.imshow(top_rect)
+    # plt.imshow(top_rect)
 
     # right panel : CORRECT
     top_m = (tr_in[1]-tr_out[1])/(tr_in[0]-tr_out[0])
@@ -298,7 +298,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     right_panel_mask = (x>tr_in[0]) & (y > (top_m*x) + top_intercept) & (y < (bot_m*x) + bot_intercept)
     right_panel_mask = np.stack([right_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
     right_rect = (right_panel_mask * img) 
-    plt.imshow(right_rect)
+    # plt.imshow(right_rect)
 
     # bottom panel: TODO
     left_m = (bl_in[1]-bl_out[1])/(bl_in[0]-bl_out[0])
@@ -308,7 +308,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     bottom_panel_mask = (y>bl_in[1]) & (y > (left_m*x) + left_intercept) & (y > (right_m*x) + right_intercept)
     bottom_panel_mask = np.stack([bottom_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
     bottom_rect = (bottom_panel_mask * img)
-    plt.imshow(bottom_rect)
+    # plt.imshow(bottom_rect)
 
     new = np.zeros_like(img)
     new+= inner_rect+left_rect + top_rect + right_rect + bottom_rect
@@ -375,9 +375,12 @@ if __name__ == '__main__':
     # when it passes the edge of the cube (.5, don't show the corresponding face)
     # i_u, o_u, i_t, o_t =project3Dto2D(translate_x=0,translate_y=0)
 
-    # SLIDESHOW :))) 
-    x_translations = np.arange(-0.45,0.45, 0.01)
+    # # X translation animation
+    x_translations = np.arange(-0.7,0.7, 0.01)
     for x_t in x_translations:
+        print(x_t)
+        if np.isclose(x_t,0.5) or np.isclose(x_t,-0.5):
+            continue 
         i_u, o_u, i_t, o_t =project3Dto2D(translate_x=x_t,translate_y=0)
         inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
         old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
@@ -402,14 +405,24 @@ if __name__ == '__main__':
         inner_panel = createHomography(old_inner,new_inner,inner)
 
         out = np.zeros_like(img)
-        out+= l_panel+t_panel+r_panel+b_panel+inner_panel
+        if x_t > -.5:
+            out += r_panel
+        out += t_panel
+        if x_t < .5:
+            out += l_panel
+        out += b_panel
+        out += inner_panel
+        # out+= l_panel+t_panel+r_panel+b_panel+inner_panel
 
         out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
         cv2.imshow("window",out)
         cv2.waitKey(2)
 
-    y_translations = np.arange(-0.45,0.45, 0.01)
+    # #  Y Translation animation
+    y_translations = np.arange(-0.7,0.7, 0.01)
     for y_t in y_translations:
+        if np.isclose(y_t,0.5) or np.isclose(y_t,-0.5):
+            continue 
         i_u, o_u, i_t, o_t =project3Dto2D(translate_x=0,translate_y=y_t)
         inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
         old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
@@ -434,12 +447,50 @@ if __name__ == '__main__':
         inner_panel = createHomography(old_inner,new_inner,inner)
 
         out = np.zeros_like(img)
-        out+= l_panel+t_panel+r_panel+b_panel+inner_panel
+        if y_t > -.5:
+            out += b_panel 
+        if y_t < .5:
+            out += t_panel
+        out += l_panel
+        out += r_panel
+        out += inner_panel
 
         out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
         cv2.imshow("window",out)
         cv2.waitKey(2)
         
+    # Circular Translation Animation
+    # theta = np.arange(0, 2*np.pi, 0.05)
+    # for t in theta:
+    #     i_u, o_u, i_t, o_t =project3Dto2D(translate_x=0.3 * np.cos(t),translate_y=0.3 * np.sin(t))
+    #     inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
+    #     old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
+    #     new_left = np.array([o_t[0],i_t[0],i_t[3],o_t[3]])
+
+    #     old_top= np.array([o_u[0],i_u[0],i_u[1],o_u[1]])
+    #     new_top = np.array([o_t[0],i_t[0],i_t[1],o_t[1]])
+
+    #     old_right = np.array([o_u[1],i_u[1],i_u[2],o_u[2]])
+    #     new_right = np.array([o_t[1],i_t[1],i_t[2],o_t[2]])
+
+    #     old_bottom = np.array([o_u[3],i_u[3],i_u[2],o_u[2]])
+    #     new_bottom = np.array([o_t[3],i_t[3],i_t[2],o_t[2]])
+
+    #     old_inner = np.array([i_u[0],i_u[1],i_u[2],i_u[3]])
+    #     new_inner = np.array([i_t[0],i_t[1],i_t[2],i_t[3]])
+
+    #     l_panel = createHomography(old_left,new_left,left)
+    #     t_panel = createHomography(old_top,new_top,top)
+    #     r_panel = createHomography(old_right,new_right,right)
+    #     b_panel = createHomography(old_bottom,new_bottom,bot)
+    #     inner_panel = createHomography(old_inner,new_inner,inner)
+
+    #     out = np.zeros_like(img)
+    #     out+= l_panel+t_panel+r_panel+b_panel+inner_panel
+
+    #     out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
+    #     cv2.imshow("window",out)
+    #     cv2.waitKey(2)
 
 
     # inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
