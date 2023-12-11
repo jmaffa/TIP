@@ -32,12 +32,12 @@ height, width, _ = img.shape
 
 if height > 400:
     width = math.ceil(400/height * width)
-    height = 400
+    height = 400 
 
 img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC)  # Adjust the size as needed
 
-fx = 100
-fy = 130
+fx = 40
+fy = 40
 # one thing that could be cool is you have a map based on which image you select has different height,width, fx,fy vals etc.
 
 # Create the main Tkinter window
@@ -87,10 +87,10 @@ entry4.pack(pady=5)
 
 # Create a button to submit the inputs
 submit_button = ttk.Button(root, text="Create x animation", command=submit_inputs_x)
-submit_button.pack(pady=10)
+submit_button.pack(side=tk.LEFT, padx=(20, 20), pady=20, anchor=tk.CENTER, expand=True)
 
 submit_button = ttk.Button(root, text="Create y animation", command=submit_inputs_y)
-submit_button.pack(pady=10)
+submit_button.pack(side=tk.LEFT, padx=(10, 20), pady=20, anchor=tk.CENTER, expand=True)
 
 # Start the Tkinter event loop
 root.mainloop()
