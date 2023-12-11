@@ -23,7 +23,6 @@ def submit_inputs_y():
     points = np.column_stack((np.zeros_like(y_translations), y_translations))
     create_animation(points, img, width, height, fx, fy)
 
-
 # Set up Image
 image_path = "data/26mmIphone13.jpg"  # Replace with the actual path to your image
 img = cv2.imread(image_path)
