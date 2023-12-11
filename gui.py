@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 from main import create_animation
 
 def submit_inputs_x():
@@ -24,27 +25,41 @@ def submit_inputs_y():
 
 
 # Set up Image
-img = cv2.imread("data/1_full.jpg")
+image_path = "data/26mmIphone13.jpg"  # Replace with the actual path to your image
+img = cv2.imread(image_path)
 img = img.astype(np.float32) / 255.
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 height, width, _ = img.shape
+
+if height > 400:
+    width = math.ceil(400/height * width)
+    height = 400
+
+img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC)  # Adjust the size as needed
+
 fx = 100
 fy = 130
 # one thing that could be cool is you have a map based on which image you select has different height,width, fx,fy vals etc.
 
 # Create the main Tkinter window
-
 root = tk.Tk()
 root.title("Image and Input Boxes Example")
 
+# Create a Canvas widget for displaying the image
+canvas = tk.Canvas(root, width=width, height=height)
+canvas.pack(pady=10)
+
 # Load and display an image
-image_path = "data/1_full.jpg"  # Replace with the actual path to your image
 original_image = Image.open(image_path)
-resized_image = original_image.resize((600, 400))  # Adjust the size as needed
+resized_image = original_image.resize((width, height))  # Adjust the size as needed
 photo = ImageTk.PhotoImage(resized_image)
-label_image = tk.Label(root, image=photo)
-# label_image.image = photo  # Keep a reference to the image to prevent garbage collection
-label_image.pack(pady=10)
+
+#load image to canvas
+canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+
+#put point on canvas
+canvas.create_oval(width, width, width, width, fill="black", width=20)
+
 
 # Create labels and Entry widgets for user input
 label1 = tk.Label(root, text="x min (>-1ish):")

@@ -2,8 +2,8 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-fx = 100
-fy = 130
+fx = 300
+fy = 300
 width = 0
 height = 0
 
@@ -298,6 +298,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     bottom_panel_mask = np.stack([bottom_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
     bottom_rect = (bottom_panel_mask * img)
     # plt.imshow(bottom_rect)
+    
 
     new = np.zeros_like(img)
     new+= inner_rect+left_rect + top_rect + right_rect + bottom_rect
@@ -379,9 +380,11 @@ def create_animation(points, img, width, height, fx, fy):
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    img = cv2.imread("data/1_full.jpg")
+    img = cv2.imread("data/26mmIphone13.jpg")
     img = img.astype(np.float32) / 255.
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_CUBIC)
+
     
     # width = img.shape[1]
     # # print(width)
