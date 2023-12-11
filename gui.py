@@ -49,41 +49,54 @@ def circular_animation():
         print("Choose your back plane!")
 
 def on_click(event):
-    global start_x, start_y,inner_rect, innerRectCreated
+    global start_x, start_y,inner_rect, innerRectCreated,vanishingPtcreated,movex,movey
 
-    if start_x is None and start_y is None:
-        # First click, store the starting coordinates
-        start_x, start_y = event.x, event.y
-        point_size = 3
-        canvas.create_oval(start_x - point_size, start_y - point_size, start_x + point_size, start_y + point_size, fill="red", tags="shape")
+    if(innerRectCreated is False):
+        if start_x is None and start_y is None:
+            # First click, store the starting coordinates
+            start_x, start_y = event.x, event.y
+            point_size = 3
+            canvas.create_oval(start_x - point_size, start_y - point_size, start_x + point_size, start_y + point_size, fill="red", tags="shape")
+        else:
+            # Second click, draw the rectangle
+            end_x, end_y = event.x, event.y
+            point_size = 3
+            canvas.create_oval(end_x - point_size, end_y - point_size, end_x + point_size, end_y + point_size, fill="red", tags="shape")
+            #delete points for rect
+            # clear_shapes()
+
+            inner_rect = canvas.create_rectangle(start_x, start_y, end_x, end_y, outline="black",tags="shape")
+            innerRectCreated = True
+
+            # Reset starting coordinates for the next rectangle
+            start_x, start_y = None, None
     else:
-        # Second click, draw the rectangle
-        end_x, end_y = event.x, event.y
-        point_size = 3
-        canvas.create_oval(end_x - point_size, end_y - point_size, end_x + point_size, end_y + point_size, fill="red", tags="shape")
-        #delete points for rect
-        clear_shapes()
 
-        inner_rect = canvas.create_rectangle(start_x, start_y, end_x, end_y, outline="black", fill="green", tags="shape")
-        innerRectCreated = True
+        if(vanishingPtcreated == False):
+            movex, movey = event.x, event.y
+            point_size = 3
+            canvas.create_oval(movex - point_size, movey - point_size, movex + point_size, movey + point_size, fill="red", tags=["shape", "vanishingpt"])
+            vanishingPtcreated = True
 
-        # Reset starting coordinates for the next rectangle
-        start_x, start_y = None, None
+
 
 def clear_shapes():
-    global innerRectCreated
+    global innerRectCreated,vanishingPtcreated
     # Clear only the shapes on the canvas (excluding the image)
     for shape in canvas.find_withtag("shape"):
      canvas.delete(shape)
 
     innerRectCreated = False
+    vanishingPtcreated = False
+
 
 start_x, start_y = None, None
 innerRectCreated = False
+vanishingPtcreated = False
 inner_rect = None
 
 # Set up Image
-image_path = "data/26mmIphone13.jpg"  # Replace with the actual path to your image
+image_path = "data/1_full.jpg"  # Replace with the actual path to your image
 img = cv2.imread(image_path)
 img = img.astype(np.float32) / 255.
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -138,9 +151,9 @@ entry4.pack(pady=5)
 canvas.bind('<Button-1>', on_click)
 
 
-#This is currently hard to determine
-movex =  width/2 + 10
-movey = height/2
+# #This is currently hard to determine
+# movex = width/2
+# movey = height/2
 
 # Create a button to submit the inputs
 submit_button = ttk.Button(root, text="Create x animation", command=submit_inputs_x)
