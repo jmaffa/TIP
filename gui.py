@@ -100,12 +100,12 @@ def prepare_img(file_path):
     img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC)
     original_image = Image.open(file_path)
     resized_image = original_image.resize((width, height))
-    return resized_image
+    return resized_image, width, height
 def open_image():
     global photo  # Make img, width, and height global
     file_path = filedialog.askopenfilename()
     if file_path:
-        resized_image = prepare_img(file_path)
+        resized_image, width, height  = prepare_img(file_path)
         # Load and display the new image
           # Adjust the size as needed
         photo = ImageTk.PhotoImage(resized_image)
@@ -113,7 +113,8 @@ def open_image():
         canvas.delete("all")
 
         # Load new image to canvas
-        canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+        canvas.create_image(0, 0, anchor=tk.NW, image=photo) # type: ignore
+        canvas.pack(expand=True)
 start_x, start_y = None, None
 innerRectCreated = False
 vanishingPtcreated = False
@@ -145,6 +146,7 @@ photo = ImageTk.PhotoImage(resized_image)
 
 #load image to canvas
 canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+canvas.pack(expand=True)
 
 # Create labels and Entry widgets for user input
 label1 = tk.Label(root, text="x min (>-1ish):")

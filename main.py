@@ -89,7 +89,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     br_in = inner_rect_pts[2]
     bl_in = inner_rect_pts[3]
 
-    inner_rect_mask = (x > tl_in[0]) & (x < tr_in[0]) & (y > tl_in[1]) & (y < bl_in[1])
+    inner_rect_mask = (x >= tl_in[0]) & (x <= tr_in[0]) & (y >= tl_in[1]) & (y <= bl_in[1])
     inner_rect_mask = np.stack([inner_rect_mask] * img.shape[2], axis=-1).astype(np.uint8)
     inner_rect = inner_rect_mask * img
 
@@ -100,7 +100,7 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     top_intercept = tl_in[1] - (top_m * tl_in[0])
     bot_m = (bl_in[1]-bl_out[1])/(bl_in[0]-bl_out[0])
     bot_intercept = bl_in[1] - (bot_m * bl_in[0])
-    left_panel_mask = (x>0) & (x<tl_in[0]) & (y > top_m*x + top_intercept) & (y < (bot_m*x) + bot_intercept)
+    left_panel_mask = (x>=0) & (x<=tl_in[0]) & (y >=top_m*x + top_intercept) & (y <=(bot_m*x) + bot_intercept)
     left_panel_mask = np.stack([left_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
     left_rect = (left_panel_mask * img)
     # plt.imshow(left_rect)
