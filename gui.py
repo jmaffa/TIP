@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 import cv2
 import matplotlib.pyplot as plt
@@ -89,7 +89,29 @@ def clear_shapes():
     innerRectCreated = False
     vanishingPtcreated = False
 
+def open_image():
+    global img, width, height, photo  # Make img, width, and height global
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        img = cv2.imread(file_path)
+        img = img.astype(np.float32) / 255.
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        height, width, _ = img.shape
+        if height > 400:
+            width = math.ceil(400 / height * width)
+            height = 400
+        img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC)
 
+        # Load and display the new image
+        original_image = Image.open(file_path)
+        resized_image = original_image.resize((width, height))  # Adjust the size as needed
+        photo = ImageTk.PhotoImage(resized_image)
+
+        # Clear previous image
+        canvas.delete("all")
+
+        # Load new image to canvas
+        canvas.create_image(0, 0, anchor=tk.NW, image=photo)
 start_x, start_y = None, None
 innerRectCreated = False
 vanishingPtcreated = False
@@ -152,8 +174,8 @@ canvas.bind('<Button-1>', on_click)
 
 
 # #This is currently hard to determine
-# movex = width/2
-# movey = height/2
+movex = width/2
+movey = height/2
 
 # Create a button to submit the inputs
 submit_button = ttk.Button(root, text="Create x animation", command=submit_inputs_x)
@@ -169,6 +191,9 @@ submit_button.pack(side=tk.LEFT, padx=(10, 20), pady=10, anchor=tk.CENTER, expan
 # Create a button to clear back plane selection
 clear_button = ttk.Button(root, text="Reset Back Plane", command=clear_shapes)
 clear_button.pack(side=tk.LEFT, padx=(5, 20), pady=10, anchor=tk.CENTER, expand=True)
+
+open_button = ttk.Button(root, text="Open Image", command=open_image)
+open_button.pack(side=tk.LEFT, padx=(5, 20), pady=10, anchor=tk.CENTER, expand=True)
 
 
 # Start the Tkinter event loop
