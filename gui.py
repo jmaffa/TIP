@@ -88,25 +88,27 @@ def clear_shapes():
 
     innerRectCreated = False
     vanishingPtcreated = False
-
+def prepare_img(file_path):
+    global img, width, height
+    img = cv2.imread(file_path)
+    img = img.astype(np.float32) / 255.
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    height, width, _ = img.shape
+    if height > 400:
+        width = math.ceil(400 / height * width)
+        height = 400
+    img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC)
+    original_image = Image.open(file_path)
+    resized_image = original_image.resize((width, height))
+    return resized_image
 def open_image():
-    global img, width, height, photo  # Make img, width, and height global
+    global photo  # Make img, width, and height global
     file_path = filedialog.askopenfilename()
     if file_path:
-        img = cv2.imread(file_path)
-        img = img.astype(np.float32) / 255.
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        height, width, _ = img.shape
-        if height > 400:
-            width = math.ceil(400 / height * width)
-            height = 400
-        img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC)
-
+        resized_image = prepare_img(file_path)
         # Load and display the new image
-        original_image = Image.open(file_path)
-        resized_image = original_image.resize((width, height))  # Adjust the size as needed
+          # Adjust the size as needed
         photo = ImageTk.PhotoImage(resized_image)
-
         # Clear previous image
         canvas.delete("all")
 
