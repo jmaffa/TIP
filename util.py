@@ -20,16 +20,15 @@ def project3Dto2D(camera_x, camera_y, fx, fy, movex, movey):
 
     # Inner Rectangle, Untranslated, Bottom Left/Right, Top Right/Left
     i_u_bl, i_u_br, i_u_tr, i_u_tl = np.zeros((3,1)), np.zeros((3,1)), np.zeros((3,1)), np.zeros((3,1))
+    inner_rect_untranslated = [i_u_bl, i_u_br, i_u_tr, i_u_tl]
     # Outer Rectangle, Untranslated, Bottom Left/Right, Top Right/Left
     o_u_bl, o_u_br, o_u_tr, o_u_tl = np.zeros((3,1)), np.zeros((3,1)), np.zeros((3,1)), np.zeros((3,1))
+    outer_rect_untranslated = [o_u_bl, o_u_br, o_u_tr, o_u_tl]
     # Inner Rectangle, Translated, Bottom Left/Right, Top Right/Left
     i_t_bl, i_t_br, i_t_tr, i_t_tl = np.zeros((3,1)), np.zeros((3,1)), np.zeros((3,1)), np.zeros((3,1))
+    inner_rect_translated = [i_t_bl, i_t_br, i_t_tr, i_t_tl]
     # Outer Rectangle, Translated, Bottom Left/Right, Top Right/Left
     o_t_bl, o_t_br, o_t_tr, o_t_tl = np.zeros((3,1)), np.zeros((3,1)), np.zeros((3,1)), np.zeros((3,1))
-
-    inner_rect_untranslated = [i_u_bl, i_u_br, i_u_tr, i_u_tl]
-    outer_rect_untranslated = [o_u_bl, o_u_br, o_u_tr, o_u_tl]
-    inner_rect_translated = [i_t_bl, i_t_br, i_t_tr, i_t_tl]
     outer_rect_translated = [o_t_bl, o_t_br, o_t_tr, o_t_tl]
 
     # Extrinsic matrix is identity when the camera is not translated
@@ -38,6 +37,8 @@ def project3Dto2D(camera_x, camera_y, fx, fy, movex, movey):
                                               [0, 0, 1, 0]])
 
     # Use the function arguments to determine how to translate the camera
+    # NOTE: The z translation can transform the camera in 3D space (going INTO the picture), but we chose not to go down the route of exploring that.
+    # Instead, we focused our efforts on translating the camera in the x and y directions.
     extrinsic_matrix_translated = np.array([[1, 0, 0, camera_x], 
                                             [0, 1, 0, camera_y], 
                                             [0, 0, 1, 0]]) # type: ignore
@@ -146,71 +147,90 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     return inner_rect, left_rect, top_rect, right_rect, bottom_rect
 
 def createHomography(old_quad, new_quad, img, width, height):
+    """
+    Creates a homography and warps the image given the size of the image and the corners of the quadrilaterals that correspond
+    """
     M,_ = cv2.findHomography(old_quad,new_quad)
     out = cv2.warpPerspective(img,M,(int(width),int(height)))
     final_fill = np.zeros((height, width, 3))
     final_fill += out
     return out
+def find_view(x_t, y_t, fx, fy, movex, movey, img, width, height):
+    i_u, o_u, i_t, o_t = project3Dto2D(camera_x=x_t,camera_y=y_t, fx=fx, fy=fy, movex=movex, movey=movey)
+    # Creates the masks for each of the panels 
+    inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
+
+    # Create homography correspondences for each of the "faces"
+    old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
+    new_left = np.array([o_t[0],i_t[0],i_t[3],o_t[3]])
+
+    old_top = np.array([o_u[0],i_u[0],i_u[1],o_u[1]])
+    new_top = np.array([o_t[0],i_t[0],i_t[1],o_t[1]])
+
+    old_right = np.array([o_u[1],i_u[1],i_u[2],o_u[2]])
+    new_right = np.array([o_t[1],i_t[1],i_t[2],o_t[2]])
+
+    old_bottom = np.array([o_u[3],i_u[3],i_u[2],o_u[2]])
+    new_bottom = np.array([o_t[3],i_t[3],i_t[2],o_t[2]])
+
+    old_inner = np.array([i_u[0],i_u[1],i_u[2],i_u[3]])
+    new_inner = np.array([i_t[0],i_t[1],i_t[2],i_t[3]])
+
+    # Create the homographies and warp each of the panels
+    l_panel = createHomography(old_left,new_left,left, width, height)
+    t_panel = createHomography(old_top,new_top,top, width, height)
+    r_panel = createHomography(old_right,new_right,right, width, height)
+    b_panel = createHomography(old_bottom,new_bottom,bot, width, height)
+    inner_panel = createHomography(old_inner,new_inner,inner, width, height)
+
+    # Compose the final image by adding each of the panels together
+    # If conditions prevent the panels from adding on top of each other if they go beyond the geography of the 3D cube.
+    out = np.zeros_like(img)
+    if x_t > -.5:
+        out += r_panel
+    if y_t < .5:
+        out += t_panel
+    if x_t < .5:
+        out += l_panel
+    if y_t > -.5:
+        out += b_panel
+    out += inner_panel
+
+    return out
 def create_animation(points, img, width, height, fx, fy, movex, movey):
+    """
+    Uses OpenCV to create an animation that shows the view from the camera as it moves around the 3D cube
+    """
     for x_t,y_t in points:
+        # If it is ever at the edge of the 3D cube, skip it to avoid division by 0
         if np.isclose(x_t,0.5) or np.isclose(x_t,-0.5) or np.isclose(y_t,0.5) or np.isclose(y_t,-0.5):
             continue 
-        i_u, o_u, i_t, o_t = project3Dto2D(camera_x=x_t,camera_y=y_t, fx=fx, fy=fy, movex=movex, movey=movey)
-        inner,left,top,right,bot = create_side_images(img,i_u, o_u, width, height)
-        old_left = np.array([o_u[0],i_u[0],i_u[3],o_u[3]])
-        new_left = np.array([o_t[0],i_t[0],i_t[3],o_t[3]])
-
-        old_top= np.array([o_u[0],i_u[0],i_u[1],o_u[1]])
-        new_top = np.array([o_t[0],i_t[0],i_t[1],o_t[1]])
-
-        old_right = np.array([o_u[1],i_u[1],i_u[2],o_u[2]])
-        new_right = np.array([o_t[1],i_t[1],i_t[2],o_t[2]])
-
-        old_bottom = np.array([o_u[3],i_u[3],i_u[2],o_u[2]])
-        new_bottom = np.array([o_t[3],i_t[3],i_t[2],o_t[2]])
-
-        old_inner = np.array([i_u[0],i_u[1],i_u[2],i_u[3]])
-        new_inner = np.array([i_t[0],i_t[1],i_t[2],i_t[3]])
-
-        l_panel = createHomography(old_left,new_left,left, width, height)
-        t_panel = createHomography(old_top,new_top,top, width, height)
-        r_panel = createHomography(old_right,new_right,right, width, height)
-        b_panel = createHomography(old_bottom,new_bottom,bot, width, height)
-        inner_panel = createHomography(old_inner,new_inner,inner, width, height)
-
-        out = np.zeros_like(img)
-        if x_t > -.5:
-            out += r_panel
-        if y_t < .5:
-            out += t_panel
-        if x_t < .5:
-            out += l_panel
-        if y_t > -.5:
-            out += b_panel
-        out += inner_panel
-        # out+= l_panel+t_panel+r_panel+b_panel+inner_panel
-
+        out = find_view(x_t, y_t, fx, fy, movex, movey, img, width, height)
         out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
         cv2.imshow("window",out)
         cv2.waitKey(2)
     cv2.destroyAllWindows()
 
+
 if __name__ == '__main__':
+    """
+    Entry point for testing utility functions. Does not work with the GUI, just takes in a single image and creates an animation.
+    Comment in X, Y, or Circle points to view images from those perspectives
+    """
     img = cv2.imread("data/26mmIphone13.jpg")
     img = img.astype(np.float32) / 255.
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_CUBIC)
-
     height, width, _ = img.shape
 
     # X translation animation
-    x_translations = np.arange(-0.7,0.7, 0.01)
-    points = np.column_stack((x_translations, np.zeros_like(x_translations)))
+    # x_translations = np.arange(-0.7,0.7, 0.01)
+    # points = np.column_stack((x_translations, np.zeros_like(x_translations)))
     # create_animation(points,img, width, height, fx, fy)
 
     #  Y Translation animation
-    y_translations = np.arange(-0.7,0.7, 0.01)
-    points = np.column_stack((np.zeros_like(y_translations), y_translations))
+    # y_translations = np.arange(-0.7,0.7, 0.01)
+    # points = np.column_stack((np.zeros_like(y_translations), y_translations))
     # create_animation(points,img, width, height, fx, fy)
  
     # Circular Translation Animation

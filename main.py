@@ -174,9 +174,7 @@ if __name__ == "__main__":
     entry4 = tk.Entry(root, width=20)
     entry4.pack(pady=5)
 
-
     canvas.bind('<Button-1>', on_click)
-
 
     # #This is currently hard to determine
     movex = width/2
