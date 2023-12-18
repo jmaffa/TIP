@@ -217,7 +217,7 @@ if __name__ == '__main__':
     Entry point for testing utility functions. Does not work with the GUI, just takes in a single image and creates an animation.
     Comment in X, Y, or Circle points to view images from those perspectives
     """
-    img = cv2.imread("data/26mmIphone13.jpg")
+    img = cv2.imread("data/2.jpg")
     img = img.astype(np.float32) / 255.
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_CUBIC)
