@@ -79,6 +79,8 @@ def project3Dto2D(camera_x, camera_y, fx, fy, movex, movey):
     # plt.plot((outer_rect_translated[1][0], inner_rect_translated[1][0]), (outer_rect_translated[1][1],inner_rect_translated[1][1]), 'b')
     # plt.plot((outer_rect_translated[2][0], inner_rect_translated[2][0]), (outer_rect_translated[2][1],inner_rect_translated[2][1]), 'b')
     # plt.plot((outer_rect_translated[3][0], inner_rect_translated[3][0]), (outer_rect_translated[3][1],inner_rect_translated[3][1]), 'b')
+    # plt.imshow(img)
+    # plt.show()
 
     return inner_rect_untranslated, outer_rect_untranslated, inner_rect_translated, outer_rect_translated
 
@@ -98,6 +100,16 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     # Set Inner rectangle points: top left, top right, bottom right, bottom left
     tl_in, tr_in, br_in, bl_in = inner_rect_pts[0], inner_rect_pts[1], inner_rect_pts[2], inner_rect_pts[3]
 
+    plt.plot((tl_out[1],tl_in[1]), (tl_out[0],tl_in[0]), marker='o')
+    # # TR LINE (1399,775) (0,353)
+    plt.plot((tr_out[1],tr_in[1]), (tr_out[0],tr_in[0]), marker='o')
+    # # BR LINE (1399,775) (886, 533)
+    plt.plot((br_out[1],br_in[1]), (br_out[0],br_in[0]), marker='o')
+    # # BL LINE (0,625) (886, 533)
+    plt.plot((bl_out[1],bl_in[1]), (bl_out[0],bl_in[0]), marker='o')
+    plt.imshow(img)
+    plt.show()
+
     # Creates a mask for the inner rectangle (background)
     inner_rect_mask = (x >= tl_in[0]) & (x <= tr_in[0]) & (y >= tl_in[1]) & (y <= bl_in[1])
     inner_rect_mask = np.stack([inner_rect_mask] * img.shape[2], axis=-1).astype(np.uint8)
@@ -112,6 +124,8 @@ def create_side_images(img, inner_rect_pts, outer_rect_pts, w, h):
     left_panel_mask = (x>=0) & (x<=tl_in[0]) & (y >=top_m*x + top_intercept) & (y <=(bot_m*x) + bot_intercept)
     left_panel_mask = np.stack([left_panel_mask] * img.shape[2], axis=-1).astype(np.uint8)
     left_rect = (left_panel_mask * img)
+    plt.imshow(left_rect)
+    plt.show()
 
     # Creates a mask for the top panel (ceiling)
     left_m = (tl_in[1]-tl_out[1])/(tl_in[0]-tl_out[0])
@@ -175,6 +189,8 @@ def find_view(x_t, y_t, fx, fy, movex, movey, img, width, height):
 
     # Create the homographies and warp each of the panels
     l_panel = createHomography(old_left,new_left,left, width, height)
+    plt.imshow(l_panel)
+    plt.show()
     t_panel = createHomography(old_top,new_top,top, width, height)
     r_panel = createHomography(old_right,new_right,right, width, height)
     b_panel = createHomography(old_bottom,new_bottom,bot, width, height)
@@ -217,14 +233,14 @@ if __name__ == '__main__':
     """
 
     # Change this path to "unit test" different parameters.
-    img = cv2.imread("data/2.jpg")
+    img = cv2.imread("data/1.jpg")
     img = img.astype(np.float32) / 255.
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_CUBIC)
+    # img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_CUBIC)
     height, width, _ = img.shape
 
-    fx = 300
-    fy = 300    
+    fx = 150
+    fy = 120   
 
     # X translation animation
     # x_translations = np.arange(-0.7,0.7, 0.01)
@@ -239,6 +255,6 @@ if __name__ == '__main__':
     # Circular Translation Animation
     theta = np.arange(0, 2*np.pi, 0.05)
     points = np.column_stack((0.3 * np.cos(theta), 0.3 * np.sin(theta)))
-    
+
     # Creates inner rectangle in the center of the image. 
-    create_animation(points,img, width, height, fx, fy, width/2, height/2)
+    create_animation(points,img, width, height, fx, fy, 1.45*width/3, 2.35*height/3)
