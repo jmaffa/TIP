@@ -2,9 +2,6 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-fx = 300
-fy = 300
-
 def project3Dto2D(camera_x, camera_y, fx, fy, movex, movey):
     """
     Projects the 3D points of the inner and outer rectangle onto the 2D plane
@@ -213,15 +210,21 @@ def create_animation(points, img, width, height, fx, fy, movex, movey):
 
 
 if __name__ == '__main__':
+    
     """
     Entry point for testing utility functions. Does not work with the GUI, just takes in a single image and creates an animation.
     Comment in X, Y, or Circle points to view images from those perspectives
     """
+
+    # Change this path to "unit test" different parameters.
     img = cv2.imread("data/2.jpg")
     img = img.astype(np.float32) / 255.
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_CUBIC)
     height, width, _ = img.shape
+
+    fx = 300
+    fy = 300    
 
     # X translation animation
     # x_translations = np.arange(-0.7,0.7, 0.01)
@@ -237,4 +240,5 @@ if __name__ == '__main__':
     theta = np.arange(0, 2*np.pi, 0.05)
     points = np.column_stack((0.3 * np.cos(theta), 0.3 * np.sin(theta)))
     
+    # Creates inner rectangle in the center of the image. 
     create_animation(points,img, width, height, fx, fy, width/2, height/2)
