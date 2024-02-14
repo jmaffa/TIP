@@ -220,7 +220,7 @@ def create_animation(points, img, width, height, fx, fy, movex, movey):
             continue 
         out = find_view(x_t, y_t, fx, fy, movex, movey, img, width, height)
         out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
-        cv2.imshow("window",out)
+        cv2.imshow("animation",out)
         cv2.waitKey(2)
     cv2.destroyAllWindows()
 

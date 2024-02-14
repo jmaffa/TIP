@@ -24,7 +24,7 @@ def submit_inputs_x():
     x_translations = np.arange(float(input1),float(input2), 0.01)
     points = np.column_stack((x_translations, np.zeros_like(x_translations)))
 
-    if(innerRectCreated):
+    if(innerRectCreated and vanishingPtcreated):
         rectx1, recty1, rectx2,recty2 = canvas.coords(inner_rect) # type: ignore
         fx = rectx2 - rectx1 
         fy = recty2 - recty1
@@ -50,7 +50,7 @@ def submit_inputs_y():
     y_translations = np.arange(float(input3),float(input4), 0.01)
     points = np.column_stack((np.zeros_like(y_translations), y_translations))
 
-    if(innerRectCreated):
+    if(innerRectCreated and vanishingPtcreated):
         rectx1, recty1, rectx2,recty2 = canvas.coords(inner_rect) # type: ignore
         fx = rectx2 - rectx1 
         fy = recty2 - recty1
@@ -66,13 +66,13 @@ def circular_animation():
     theta = np.arange(0, 2*np.pi, 0.05)
     points = np.column_stack((0.2 * np.cos(theta), 0.2 * np.sin(theta)))
 
-    if(innerRectCreated):
+    if(innerRectCreated and vanishingPtcreated):
         rectx1, recty1, rectx2,recty2 = canvas.coords(inner_rect) # type: ignore
         fx = rectx2 - rectx1 
         fy = recty2 - recty1
         create_animation(points, img, width, height, fx, fy, movex, movey)
     else:
-        print("Choose your back plane!")
+        print("Choose your back plane and vanishing point!")
 
 def clear_shapes():
     """
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC)  
 
     root = tk.Tk()
-    root.title("Image and Input Boxes Example")
+    root.title("Tour Into Picture (TIP)")
 
     # Create a Canvas widget for displaying the image
     canvas = tk.Canvas(root, width=width, height=height)
@@ -185,37 +185,37 @@ if __name__ == "__main__":
 
     # Create labels and Entry widgets for user input for x and y translations
     label1 = tk.Label(frame, text="x min (>-1ish):")
-    label1.grid(row=0, column=0, padx=2, pady=5)
+    label1.grid(row=1, column=0, padx=2, pady=5)
     entry1 = tk.Entry(frame, width=5)
-    entry1.grid(row=0, column=1, padx=2, pady=5)
+    entry1.grid(row=1, column=1, padx=2, pady=5)
     label2 = tk.Label(frame, text="x max (<1ish):")
-    label2.grid(row=0, column=2, padx=2, pady=5)
+    label2.grid(row=1, column=2, padx=2, pady=5)
     entry2 = tk.Entry(frame, width=5)
-    entry2.grid(row=0, column=3, padx=2, pady=5)
+    entry2.grid(row=1, column=3, padx=2, pady=5)
     submit_x_button = ttk.Button(frame, text="Create x animation", command=submit_inputs_x)
-    submit_x_button.grid(row=0, column=4, padx=2, pady=5)
+    submit_x_button.grid(row=1, column=4, padx=2, pady=5)
 
     label3 = tk.Label(frame, text="y min (>-1ish):")
-    label3.grid(row=1, column=0, padx=2, pady=5)
+    label3.grid(row=2, column=0, padx=2, pady=5)
     entry3 = tk.Entry(frame, width=5)
-    entry3.grid(row=1, column=1, padx=2, pady=5)
+    entry3.grid(row=2, column=1, padx=2, pady=5)
     label4 = tk.Label(frame, text="y max (<1ish):")
-    label4.grid(row=1, column=2, padx=2, pady=5)
+    label4.grid(row=2, column=2, padx=2, pady=5)
     entry4 = tk.Entry(frame, width=5)
-    entry4.grid(row=1, column=3, padx=2, pady=5)
+    entry4.grid(row=2, column=3, padx=2, pady=5)
     submit_y_button = ttk.Button(frame, text="Create y animation", command=submit_inputs_y)
-    submit_y_button.grid(row=1, column=4, padx=2, pady=5)
+    submit_y_button.grid(row=2, column=4, padx=2, pady=5)
 
     # Button for circular animation
     circle_button = ttk.Button(frame, text="Circle Animation", command=circular_animation)
-    circle_button.grid(row=2, column=2, padx=2, pady=5)
+    circle_button.grid(row=3, column=2, padx=2, pady=5)
 
     # Button to clear the inner rectangle
     clear_button = ttk.Button(frame, text="Reset Back Plane", command=clear_shapes)
-    clear_button.grid(row=3, column=2, padx=2, pady=5)
+    clear_button.grid(row=4, column=2, padx=2, pady=5)
 
     # Button to open another image
     open_button = ttk.Button(frame, text="Open Image", command=open_image)
-    open_button.grid(row=4, column=2, padx=2, pady=5)
+    open_button.grid(row=5, column=2, padx=2, pady=5)
 
     root.mainloop()
