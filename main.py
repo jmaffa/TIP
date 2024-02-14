@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 import cv2
+import customtkinter as ctk
 import numpy as np
 import math
 from util import create_animation
@@ -164,13 +165,18 @@ if __name__ == "__main__":
     if height > 400:
         width = math.ceil(400/height * width)
         height = 400 
-    img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC)  
-
-    root = tk.Tk()
-    root.title("Image and Input Boxes Example")
+    img = cv2.resize(img, dsize=(width, height), interpolation=cv2.INTER_CUBIC) 
+    ctk.set_appearance_mode("System")  # Modes: system (default), light, dark
+    ctk.set_default_color_theme("blue")  
+    root = ctk.CTk()
+    root.geometry("800x1000")
+    root.title("Tour into the Picture")
+    # root = tk.Tk()
+    # root.title("Image and Input Boxes Example")
 
     # Create a Canvas widget for displaying the image
     canvas = tk.Canvas(root, width=width, height=height)
+    # canvas = ctk.CTkCanvas(root, width=width, height=height)
     canvas.pack(pady=10, padx=10)
 
     # Load and display an image as a clickable Canvas
@@ -180,42 +186,42 @@ if __name__ == "__main__":
     canvas.create_image(0, 0, anchor=tk.NW, image=photo)
     canvas.bind('<Button-1>', on_click) # type: ignore
 
-    frame = tk.Frame(root)
+    frame = ctk.CTkFrame(root)
     frame.pack(pady=20)
 
     # Create labels and Entry widgets for user input for x and y translations
-    label1 = tk.Label(frame, text="x min (>-1ish):")
+    label1 = ctk.CTkLabel(frame, text="x min (>-1ish):")
     label1.grid(row=0, column=0, padx=2, pady=5)
-    entry1 = tk.Entry(frame, width=5)
+    entry1 = ctk.CTkEntry(frame, width=5)
     entry1.grid(row=0, column=1, padx=2, pady=5)
-    label2 = tk.Label(frame, text="x max (<1ish):")
+    label2 = ctk.CTkLabel(frame, text="x max (<1ish):")
     label2.grid(row=0, column=2, padx=2, pady=5)
-    entry2 = tk.Entry(frame, width=5)
+    entry2 = ctk.CTkEntry(frame, width=5)
     entry2.grid(row=0, column=3, padx=2, pady=5)
-    submit_x_button = ttk.Button(frame, text="Create x animation", command=submit_inputs_x)
+    submit_x_button = ctk.CTkButton(frame, text="Create x animation", command=submit_inputs_x)
     submit_x_button.grid(row=0, column=4, padx=2, pady=5)
 
-    label3 = tk.Label(frame, text="y min (>-1ish):")
+    label3 = ctk.CTkLabel(frame, text="y min (>-1ish):")
     label3.grid(row=1, column=0, padx=2, pady=5)
-    entry3 = tk.Entry(frame, width=5)
+    entry3 = ctk.CTkEntry(frame, width=5)
     entry3.grid(row=1, column=1, padx=2, pady=5)
-    label4 = tk.Label(frame, text="y max (<1ish):")
+    label4 = ctk.CTkLabel(frame, text="y max (<1ish):")
     label4.grid(row=1, column=2, padx=2, pady=5)
-    entry4 = tk.Entry(frame, width=5)
+    entry4 = ctk.CTkEntry(frame, width=5)
     entry4.grid(row=1, column=3, padx=2, pady=5)
-    submit_y_button = ttk.Button(frame, text="Create y animation", command=submit_inputs_y)
+    submit_y_button = ctk.CTkButton(frame, text="Create y animation", command=submit_inputs_y)
     submit_y_button.grid(row=1, column=4, padx=2, pady=5)
 
     # Button for circular animation
-    circle_button = ttk.Button(frame, text="Circle Animation", command=circular_animation)
+    circle_button = ctk.CTkButton(frame, text="Circle Animation", command=circular_animation)
     circle_button.grid(row=2, column=2, padx=2, pady=5)
 
     # Button to clear the inner rectangle
-    clear_button = ttk.Button(frame, text="Reset Back Plane", command=clear_shapes)
+    clear_button = ctk.CTkButton(frame, text="Reset Back Plane", command=clear_shapes)
     clear_button.grid(row=3, column=2, padx=2, pady=5)
 
     # Button to open another image
-    open_button = ttk.Button(frame, text="Open Image", command=open_image)
+    open_button = ctk.CTkButton(frame, text="Open Image", command=open_image)
     open_button.grid(row=4, column=2, padx=2, pady=5)
 
     root.mainloop()
